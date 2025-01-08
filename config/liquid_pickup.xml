@@ -15,11 +15,15 @@
             <!-- <RobotInitializer swab_x="-0.4" swab_y="0.0" swab_z="0.45" swab_yaw = "0.0" swab_container_x="-0.43" swab_container_y="0.0" swab_container_z="0.41" swab_container_yaw = "0.0"/> -->
             <!-- <ChangeGripper name="open_gripper" position="0.3" max_effort = "0.0"/> -->
             <!-- </Sequence> -->
+            
+            <RetryUntilSuccessful num_attempts="10">
+            <Sequence name="open_gripper">
+                <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.3" goal_tolerance = "0.1" attach_or_detach = "detach"/>
+            </Sequence>  
+            </RetryUntilSuccessful>
 
             <!-- <RetryUntilSuccessful num_attempts="10">
-            <Sequence name="open_gripper">
-                <ChangeGripper name="open_gripper" position="0.3" max_effort = "0.0" goal_tolerance = "0.1" attach_or_detach = "detach"/>
-            </Sequence>  
+                    <RetreatZ name="retreat_vertically_up" add_pos_z = "0.2"/>
             </RetryUntilSuccessful> -->
         
             <Sequence name="pickup_swab_from_palette">
@@ -31,12 +35,12 @@
                 <PregraspExecute name="execute_pickup_swab_from_palette" plan_trajectory="{plan_trajectory}" sensor_deploy_frame_names_dynamic="" pos_comma="0" no_of_deploy_sensors="0" execute_trajectory="{execute_trajectory}"/>
                 </RetryUntilSuccessful>
 
-                <RetryUntilSuccessful num_attempts="10">
+                <!-- <RetryUntilSuccessful num_attempts="10">
                     <Grasp name="grasp_pickup_swab_from_palette" target_x="{target_x_cp}" target_y="{target_y_cp}" target_z="{target_z_cp}" target_roll="{target_roll_cp}" target_pitch ="{target_pitch_cp}" target_yaw = "{target_yaw_cp}" tcp_offset_x = "0.02" tcp_offset_y = "0.0" tcp_offset_z = "-0.12" />
-                </RetryUntilSuccessful>
+                </RetryUntilSuccessful> -->
 
                 <RetryUntilSuccessful num_attempts="10">
-                    <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.12"/>
+                    <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.11"/>
                 </RetryUntilSuccessful>
 
                 <RetryUntilSuccessful num_attempts="10">
@@ -48,7 +52,7 @@
                 </RetryUntilSuccessful>
             </Sequence>        
 
-            <!-- <Sequence name="collect_liquid_sample">
+            <Sequence name="collect_liquid_sample">
                 <RetryUntilSuccessful num_attempts="20">
                     <PregraspPlan name="plan_collect_liquid_sample" sensor_deploy_frame_names_dynamic="" pos_comma="0" no_of_deploy_sensors="0" pose_from_tf="false" target_x="0.6" target_y="0.01" target_z="0.5" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.1" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
                 </RetryUntilSuccessful>
@@ -64,7 +68,7 @@
                 <RetryUntilSuccessful num_attempts="10">
                     <RetreatZ name="retreat_vertically_up" add_pos_z = "0.1"/>
                 </RetryUntilSuccessful>
-            </Sequence> -->
+            </Sequence>
 
             <!-- <Sequence name="collect_liquid_sample"> -->
             <!-- The target coordinates do not matter in the action collect_liquid_sample as they are provided in the TF tree -->

@@ -18,19 +18,23 @@
 #include "time_logger.h"
 #endif
 
-#include "manipulator_behaviors.h"  
+// #include "manipulator_behaviors.h"  
 #include "gripper_behavior.h"
 #include "navigation_behaviors.h"
 #include "sensors_deploy_behaviors.h"
 // #include "move_it_task_constructor_behaviors.h"
 
-#include "manipulator.h"
+// #include "manipulator.h"
 #include "robot.h"
 
 #include <unistd.h>
 #include <stdio.h>
 
 #include "ba_interfaces.h"
+
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 int main(int argc, char *argv[])
 {
@@ -45,22 +49,29 @@ int main(int argc, char *argv[])
   std::thread([&executor]() { executor->spin(); }).detach();
 
   node_->declare_parameter("yaml_file", "arm_positions.yaml");
-  node_->declare_parameter("behavior_tree_type", "behavior_tree_type");
   node_->declare_parameter("bt_xml", "test_2.xml");
-  std::string behavior_tree_type = node_->get_parameter("behavior_tree_type").as_string();
+
+  node_->declare_parameter("coordinates", "[[2.0, 3.0], [4.0, 1.0]]");
+  std::string coordinates_array = node_->get_parameter("coordinates").as_string();
+
+  json parsed = json::parse(coordinates_array);
+
+  std::vector<std::vector<double>> coordinates = parsed.get<std::vector<std::vector<double>>>();
+
+  // RCLCPP_INFO(node_->get_logger(), "coordinates[0][0] %f!", coordinates[0][0]);
 
   BT::BehaviorTreeFactory factory;
   // factory.registerNodeType<RobotInitializer>("RobotInitializer", node_);
-  factory.registerNodeType<ManipulatorGrasp>("Grasp", node_);
-  factory.registerNodeType<ManipulatorPregraspPlan>("PregraspPlan", node_);
-  factory.registerNodeType<ManipulatorDrop>("Drop", node_);
-  factory.registerNodeType<ManipulatorPostgraspRetreat>("RetreatZ", node_);
-  factory.registerNodeType<ManipulatorScanPose>("ScanPose", node_);
-  factory.registerNodeType<GripperActuator>("ChangeGripper", node_, executor);
+  // factory.registerNodeType<ManipulatorGrasp>("Grasp", node_);
+  // factory.registerNodeType<ManipulatorPregraspPlan>("PregraspPlan", node_);
+  // factory.registerNodeType<ManipulatorDrop>("Drop", node_);
+  // factory.registerNodeType<ManipulatorPostgraspRetreat>("RetreatZ", node_);
+  // factory.registerNodeType<ManipulatorScanPose>("ScanPose", node_);
+  // factory.registerNodeType<GripperActuator>("ChangeGripper", node_, executor);
   factory.registerNodeType<GoToPose>("GoToPose", node_, executor);
-  factory.registerNodeType<SensorsDeploy>("SensorsDeploy", node_);
+  factory.registerNodeType<SensorsDeploy>("SensorsDeploy", node_, coordinates);
   // factory.registerNodeType<MoveItTaskConstructor>("MoveItTaskConstructor", node_);
-  factory.registerNodeType<ManipulatorPregraspExecute>("PregraspExecute", node_);
+  // factory.registerNodeType<ManipulatorPregraspExecute>("PregraspExecute", node_);
 
   std::string xml_models = BT::writeTreeNodesModelXML(factory);
   std::cerr << xml_models;

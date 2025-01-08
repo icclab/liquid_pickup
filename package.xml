@@ -29,6 +29,7 @@
   <!-- <depend>moveit_task_constructor_core</depend> -->
   <depend>tf2_eigen</depend>
   <depend>std_msgs</depend>
+  <depend>nav2_costmap_2d</depend>
   
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

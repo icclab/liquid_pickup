@@ -9,13 +9,13 @@
 
             <!-- Format for sensor_deploy_frame_names: sensor_1_name,sensor_2_name,sensor_3_name, -->
             <Sequence name="SensorsDeploy">
-                <SensorsDeploy name="SensorsDeploy" sensor_deploy_frame_names="s1,s2,s3," sensor_deploy_frame_names_dynamic="{sensor_deploy_frame_names_dynamic}" no_of_deploy_sensors="{no_of_deploy_sensors}"/>
-                <Repeat name="navigate_manipulate_repeater" num_cycles="{no_of_deploy_sensors}">
+                <SensorsDeploy name="SensorsDeploy" deploy_coordinates="{deploy_coordinates}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy_sensors_number="{deploy_sensors_number}"/>
+                <Repeat name="navigate_manipulate_repeater" num_cycles="{deploy_sensors_number}">
                     <Sequence name="NavigateManipulate">
                         <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
-                        <!-- <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" sensor_deploy_frame_names_dynamic="{sensor_deploy_frame_names_dynamic}" target_x="3.0" target_y="0.01" target_yaw = "1.57"/> -->
-                        <PregraspPlan name="pickup_sensor_from_palette" sensor_deploy_frame_names_dynamic="{sensor_deploy_frame_names_dynamic}" pos_comma="{pos_comma}" no_of_deploy_sensors="{no_of_deploy_sensors}" pose_from_tf="false" target_x="-0.1" target_y="0.01" target_z="0.8" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.1" plan_trajectory="{plan_trajectory}"/>
-                        <PregraspExecute name="execute_pickup_swab_from_palette" plan_trajectory="{plan_trajectory}" sensor_deploy_frame_names_dynamic="{sensor_deploy_frame_names_dynamic}" pos_comma="{pos_comma}" no_of_deploy_sensors="{no_of_deploy_sensors}"/>
+                        <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                        <!-- <PregraspPlan name="pickup_sensor_from_palette" sensor_deploy_frame_names_dynamic="{sensor_deploy_frame_names_dynamic}" pos_comma="{pos_comma}" no_of_deploy_sensors="{no_of_deploy_sensors}" pose_from_tf="false" target_x="-0.1" target_y="0.01" target_z="0.8" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.1" plan_trajectory="{plan_trajectory}"/> -->
+                        <!-- <PregraspExecute name="execute_pickup_swab_from_palette" plan_trajectory="{plan_trajectory}" sensor_deploy_frame_names_dynamic="{sensor_deploy_frame_names_dynamic}" pos_comma="{pos_comma}" no_of_deploy_sensors="{no_of_deploy_sensors}"/> -->
                         <!-- <ChangeGripper name="close_gripper" position="0.6" max_effort="0.0"/> -->
                     </Sequence>
                 </Repeat>
@@ -58,7 +58,6 @@
             <input_port name="action" type="std::string"/>
         </Action>
         <Action ID="PregraspExecute">
-            <input_port name="no_of_deploy_sensors" type="int"/>
             <input_port name="pos_comma" type="int"/>
             <inout_port name="sensor_deploy_frame_names_dynamic" type="std::string"/>
             <input_port name="plan_trajectory" type="moveit_msgs::msg::RobotTrajectory_&lt;std::allocator&lt;void&gt; &gt;"/>
@@ -74,7 +73,6 @@
             <input_port name="target_y" type="double"/>
             <input_port name="target_x" type="double"/>
             <input_port name="pose_from_tf" type="bool"/>
-            <input_port name="no_of_deploy_sensors" type="int"/>
             <output_port name="pos_comma" type="int"/>
             <input_port name="sensor_deploy_frame_names_dynamic" type="std::string"/>
             <output_port name="execute_trajectory" type="bool"/>
@@ -92,7 +90,6 @@
         </Action>
         <Action ID="ScanPose"/>
         <Action ID="SensorsDeploy">
-            <output_port name="no_of_deploy_sensors" type="int"/>
             <output_port name="sensor_deploy_frame_names_dynamic" type="std::string"/>
             <input_port name="sensor_deploy_frame_names" type="std::string"/>
         </Action>

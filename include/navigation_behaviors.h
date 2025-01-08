@@ -14,14 +14,9 @@
 
 #include "helper.h"
 
-// #include "time_logger.h"
-// #ifdef TIME_LOGGER_ON
-// #define LOG_NAV_START(val) BATimeLogger::LogNav(val, log_start)
-// #define LOG_NAV_STOP(val) BATimeLogger::LogNav(val, log_stop)
-// #else
-// #define LOG_NAV_START(val)
-// #define LOG_NAV_STOP(val)
-// #endif
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 #pragma endregion
 
@@ -53,6 +48,8 @@ private:
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};    
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::string action_name_;
+
+  std::vector<std::vector<double>> deploy_coordinates_dynamic_;
 };
 
 #pragma endregion

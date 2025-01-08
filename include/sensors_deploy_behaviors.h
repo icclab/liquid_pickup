@@ -19,7 +19,7 @@
 class SensorsDeploy : public BT::StatefulActionNode
 {
 public:
-  SensorsDeploy(const std::string &name, const BT::NodeConfiguration &config, const rclcpp::Node::SharedPtr node);
+  SensorsDeploy(const std::string &name, const BT::NodeConfiguration &config, const rclcpp::Node::SharedPtr node, const std::vector<std::vector<double>> coordinates);
   BT::NodeStatus onStart() override;
   BT::NodeStatus onRunning() override;
   void onHalted() override;
@@ -28,6 +28,7 @@ public:
 private:
   rclcpp::Node::SharedPtr node_;
   std::string action_name_;
+  std::vector<std::vector<double>> received_coordinates_;
 };
 
 #pragma endregion

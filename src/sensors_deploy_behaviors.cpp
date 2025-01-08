@@ -9,7 +9,7 @@
  * @param name The name of the behavior
  * @param config The node configuration
  */
-SensorsDeploy::SensorsDeploy(const std::string &name, const BT::NodeConfiguration &config, const rclcpp::Node::SharedPtr node) : BT::StatefulActionNode(name, config)
+SensorsDeploy::SensorsDeploy(const std::string &name, const BT::NodeConfiguration &config, const rclcpp::Node::SharedPtr node, const std::vector<std::vector<double>> coordinates) : BT::StatefulActionNode(name, config)
 {
     action_name_ = this->name();
 
@@ -20,6 +20,9 @@ SensorsDeploy::SensorsDeploy(const std::string &name, const BT::NodeConfiguratio
     }
     
     RCLCPP_INFO(node_->get_logger(), "[%s]: Initialized!", action_name_.c_str());
+
+    received_coordinates_ = coordinates;
+    // RCLCPP_INFO(node_->get_logger(), "received_coordinates[0][0] %f!", received_coordinates_[0][0]);
 }
 
 /**
@@ -32,17 +35,14 @@ BT::NodeStatus SensorsDeploy::onStart()
 {
     RCLCPP_INFO(node_->get_logger(), "action start: %s", action_name_.c_str());
 
-    // Format for sensor_deploy_frame_names: sensor_1_name,sensor_2_name,sensor_3_name,
+    setOutput<std::vector<std::vector<double>>>("deploy_coordinates", received_coordinates_);
+    setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", received_coordinates_);
     
-    std::string sensor_deploy_frame_names_;
-    getInput<std::string>("sensor_deploy_frame_names", sensor_deploy_frame_names_);
-    setOutput<std::string>("sensor_deploy_frame_names_dynamic", sensor_deploy_frame_names_);
-    
-    int no_of_deploy_sensors_ = std::count(sensor_deploy_frame_names_.begin(), sensor_deploy_frame_names_.end(), ',');
+    int no_of_deploy_sensors = received_coordinates_.size();
 
-    setOutput<int>("no_of_deploy_sensors", no_of_deploy_sensors_);
+    setOutput<int>("deploy_sensors_number", no_of_deploy_sensors);
     
-    RCLCPP_INFO(node_->get_logger(), "[%s]: %d sensors to be deployed!", action_name_.c_str(), no_of_deploy_sensors_); 
+    RCLCPP_INFO(node_->get_logger(), "[%s]: %d sensors to be deployed!", action_name_.c_str(), no_of_deploy_sensors); 
     
     return BT::NodeStatus::RUNNING;
 }
@@ -71,7 +71,7 @@ void SensorsDeploy::onHalted(){};
  */
 BT::PortsList SensorsDeploy::providedPorts()
 {
-    return {BT::InputPort<std::string>("sensor_deploy_frame_names"), BT::OutputPort<std::string>("sensor_deploy_frame_names_dynamic"), BT::OutputPort<int>("no_of_deploy_sensors")};
+    return {BT::OutputPort<std::vector<std::vector<double>>>("deploy_coordinates"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::OutputPort<int>("deploy_sensors_number")};
 }
 
 #pragma endregion
