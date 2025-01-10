@@ -5,8 +5,8 @@
 
 #include "yaml-cpp/yaml.h"
 #include <rclcpp/rclcpp.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+// #include <tf2/LinearMath/Quaternion.h>
+// #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include "ba_interfaces.h"
 // #include "manipulator.h"
 
@@ -45,8 +45,8 @@ private:
   rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr action_client_;
   rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr goal_handle_;
   
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};    
-  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+  // std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};    
+  // std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::string action_name_;
 
   std::vector<std::vector<double>> deploy_coordinates_dynamic_;

@@ -33,8 +33,8 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
     return;
     }
 
-    tf_buffer_ = std::make_unique<tf2_ros::Buffer>(node_->get_clock());
-    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+    // tf_buffer_ = std::make_unique<tf2_ros::Buffer>(node_->get_clock());
+    // tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: Initialized!", action_name_.c_str());
 }
