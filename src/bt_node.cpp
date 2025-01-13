@@ -18,13 +18,12 @@
 #include "time_logger.h"
 #endif
 
-// #include "manipulator_behaviors.h"  
+#include "manipulator_behaviors.h"  
 #include "gripper_behavior.h"
 #include "navigation_behaviors.h"
 #include "sensors_deploy_behaviors.h"
-// #include "move_it_task_constructor_behaviors.h"
 
-// #include "manipulator.h"
+#include "manipulator.h"
 #include "robot.h"
 
 #include <unistd.h>
@@ -58,20 +57,17 @@ int main(int argc, char *argv[])
 
   std::vector<std::vector<double>> coordinates = parsed.get<std::vector<std::vector<double>>>();
 
-  // RCLCPP_INFO(node_->get_logger(), "coordinates[0][0] %f!", coordinates[0][0]);
-
   BT::BehaviorTreeFactory factory;
-  // factory.registerNodeType<RobotInitializer>("RobotInitializer", node_);
-  // factory.registerNodeType<ManipulatorGrasp>("Grasp", node_);
-  // factory.registerNodeType<ManipulatorPregraspPlan>("PregraspPlan", node_);
-  // factory.registerNodeType<ManipulatorDrop>("Drop", node_);
-  // factory.registerNodeType<ManipulatorPostgraspRetreat>("RetreatZ", node_);
-  // factory.registerNodeType<ManipulatorScanPose>("ScanPose", node_);
-  // factory.registerNodeType<GripperActuator>("ChangeGripper", node_, executor);
+  factory.registerNodeType<RobotInitializer>("RobotInitializer", node_);
+  factory.registerNodeType<ManipulatorGrasp>("Grasp", node_);
+  factory.registerNodeType<ManipulatorPregraspPlan>("PregraspPlan", node_);
+  factory.registerNodeType<ManipulatorDrop>("Drop", node_);
+  factory.registerNodeType<ManipulatorPostgraspRetreat>("RetreatZ", node_);
+  factory.registerNodeType<ManipulatorScanPose>("ScanPose", node_);
+  factory.registerNodeType<GripperActuator>("ChangeGripper", node_, executor);
   factory.registerNodeType<GoToPose>("GoToPose", node_, executor);
   factory.registerNodeType<SensorsDeploy>("SensorsDeploy", node_, coordinates);
-  // factory.registerNodeType<MoveItTaskConstructor>("MoveItTaskConstructor", node_);
-  // factory.registerNodeType<ManipulatorPregraspExecute>("PregraspExecute", node_);
+  factory.registerNodeType<ManipulatorPregraspExecute>("PregraspExecute", node_);
 
   std::string xml_models = BT::writeTreeNodesModelXML(factory);
   std::cerr << xml_models;

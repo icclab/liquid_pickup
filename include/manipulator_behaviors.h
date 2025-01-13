@@ -17,14 +17,12 @@
 #include "std_msgs/msg/bool.hpp"
 #include "rclcpp/qos.hpp"
 
-// #include "time_logger.h"
-// #ifdef TIME_LOGGER_ON
-// #define LOG_MANI_START(val) BATimeLogger::LogMoveGroup(val, log_start)
-// #define LOG_MANI_STOP(val) BATimeLogger::LogMoveGroup(val, log_stop)
-// #else
-// #define LOG_MANI_START(val)
-// #define LOG_MANI_STOP(val)
-// #endif
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include "tf2/LinearMath/Transform.h"
+#include <tf2/LinearMath/Quaternion.h>
+#include "tf2_ros/transform_listener.h"
+#include "tf2_ros/buffer.h"
+#include "tf2/exceptions.h"
 
 #pragma endregion
 
@@ -75,12 +73,12 @@ private:
     rclcpp::Node::SharedPtr node_;
     Manipulator manipulator_;
     int count_{0};
-    // bool flag_{false};
-    // bool trajectory_execute_{false};
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr trajectory_execute_subscription_;
     moveit_msgs::msg::RobotTrajectory plan_trajectory_;
     rclcpp::WaitSet wait_set_;
     std::string action_name_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};    
+    std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 };
 
 #pragma endregion

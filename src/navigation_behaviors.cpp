@@ -33,9 +33,6 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
     return;
     }
 
-    // tf_buffer_ = std::make_unique<tf2_ros::Buffer>(node_->get_clock());
-    // tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-
     RCLCPP_INFO(node_->get_logger(), "[%s]: Initialized!", action_name_.c_str());
 }
 
@@ -61,7 +58,6 @@ BT::NodeStatus GoToPose::onStart()
     if (deploy_coordinates_dynamic_.empty())
     {
         RCLCPP_WARN(node_->get_logger(), "[%s]: no deploy coordinates in the list", action_name_.c_str());
-        // return BT::NodeStatus::IDLE;
     }
 
     else
@@ -80,8 +76,6 @@ BT::NodeStatus GoToPose::onStart()
         nav_msg.pose.pose.position.z = 0.0;
         nav_msg.pose.pose.orientation.x = 0.0;
         nav_msg.pose.pose.orientation.y = 0.0;
-        // nav_msg.pose.pose.orientation.z = std::sin(target_yaw_.value() / 2.0);
-        // nav_msg.pose.pose.orientation.w = std::cos(target_yaw_.value() / 2.0);
         nav_msg.pose.pose.orientation.z = 0.0;
         nav_msg.pose.pose.orientation.w = 1.0;
 
@@ -130,11 +124,6 @@ BT::NodeStatus GoToPose::onRunning()
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: result received", action_name_.c_str());
 
-    deploy_coordinates_dynamic_.erase(deploy_coordinates_dynamic_.begin());
-    setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
-
-    RCLCPP_INFO(node_->get_logger(), "[%s]: %d sensor(s) yet to be deployed", action_name_.c_str(), deploy_coordinates_dynamic_.size());
-
     return BT::NodeStatus::SUCCESS;
 }
 
@@ -143,7 +132,7 @@ BT::NodeStatus GoToPose::onRunning()
  *        This is a convenient place todo a cleanup, if needed.
  *
  */
-void GoToPose::onHalted(){};
+void GoToPose::onHalted(){}
 
 /**
  * @brief Gets the ports provided by this behavior.
@@ -152,7 +141,7 @@ void GoToPose::onHalted(){};
  */
 BT::PortsList GoToPose::providedPorts()
 {
-    return {BT::InputPort<std::string>("behavior_tree"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic")};
+    return {BT::InputPort<std::string>("behavior_tree"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic")};
 }
 
 #pragma endregion
