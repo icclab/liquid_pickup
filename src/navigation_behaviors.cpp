@@ -36,6 +36,17 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
     RCLCPP_INFO(node_->get_logger(), "[%s]: Initialized!", action_name_.c_str());
 }
 
+void GoToPose::feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback)
+{
+    double distance_remaining = feedback->distance_remaining;
+    RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining);
+
+    if (distance_remaining <= 0.5) 
+    {
+        cancel_goal_ = true;
+    }
+}
+
 /**
  * @brief method to be called at the beginning.
  *        If it returns RUNNING, this becomes an asychronous node.
@@ -81,15 +92,19 @@ BT::NodeStatus GoToPose::onStart()
         nav_msg.pose.pose.orientation.w = 1.0;
 
         RCLCPP_INFO(node_->get_logger(), "[%s]: Sending goal: header.frame_id: %s, x: %f, y: %f, z: %f, qx: %f, qy: %f, qz: %f, qw: %f, behavior_tree: %s", action_name_.c_str(), nav_msg.pose.header.frame_id.c_str(), nav_msg.pose.pose.position.x, nav_msg.pose.pose.position.y, nav_msg.pose.pose.position.z, nav_msg.pose.pose.orientation.x, nav_msg.pose.pose.orientation.y, nav_msg.pose.pose.orientation.z, nav_msg.pose.pose.orientation.w, nav_msg.behavior_tree.c_str());
-    }
+    
+        auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+        send_goal_options.feedback_callback = std::bind(&GoToPose::feedback_callback, this, _1, _2);
+        auto goal_handle_future = action_client_->async_send_goal(nav_msg, send_goal_options);
 
-    // Ask server to achieve some goal and wait until it's accepted
-    auto goal_handle_future = action_client_->async_send_goal(nav_msg);
-
-    goal_handle_ = goal_handle_future.get();
-    if (!goal_handle_) {
-    RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was rejected by server", action_name_.c_str());
-    return BT::NodeStatus::FAILURE;
+        // Ask server to achieve some goal and wait until it's accepted
+        // auto goal_handle_future = action_client_->async_send_goal(nav_msg);
+        
+        goal_handle_ = goal_handle_future.get();
+        if (!goal_handle_) {
+        RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was rejected by server", action_name_.c_str());
+        return BT::NodeStatus::FAILURE;
+        }
     }
     
     return BT::NodeStatus::RUNNING;
@@ -102,30 +117,47 @@ BT::NodeStatus GoToPose::onStart()
  */
 BT::NodeStatus GoToPose::onRunning()
 {
-    // Wait for the server to be done with the goal
-    auto result_future = action_client_->async_get_result(goal_handle_);
-
-    RCLCPP_INFO(node_->get_logger(), "[%s]: Waiting for result", action_name_.c_str());
-
-    rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult wrapped_result = result_future.get();
-
-    switch (wrapped_result.code) {
-        case rclcpp_action::ResultCode::SUCCEEDED:
-            break;
-        case rclcpp_action::ResultCode::ABORTED:
-            RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was aborted", action_name_.c_str());
-            return BT::NodeStatus::RUNNING;
-        case rclcpp_action::ResultCode::CANCELED:
-            RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was canceled", action_name_.c_str());
-            return BT::NodeStatus::RUNNING;
-        default:
-            RCLCPP_ERROR(node_->get_logger(), "[%s]: Unknown result code", action_name_.c_str());
-            return BT::NodeStatus::RUNNING;
+    if (cancel_goal_ && count_ > (5 * 1000 / 10)) 
+    {
+        RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance reached!", action_name_.c_str());
+        auto cancel_goal = action_client_->async_cancel_goal(goal_handle_);
+        auto cancel_goal_future = cancel_goal.get();
+        RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
+        cancel_goal_ = false;
+        count_ = 0;
+        return BT::NodeStatus::SUCCESS;
     }
 
-    RCLCPP_INFO(node_->get_logger(), "[%s]: result received", action_name_.c_str());
+    else
+    {
+        count_++;
+        return  BT::NodeStatus::RUNNING;
+    }
+    
+    // RCLCPP_INFO(node_->get_logger(), "[%s]: Waiting for result", action_name_.c_str());
 
-    return BT::NodeStatus::SUCCESS;
+    // // Wait for the server to be done with the goal
+    // auto result_future = action_client_->async_get_result(goal_handle_);
+
+    // rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult wrapped_result = result_future.get();
+
+    // switch (wrapped_result.code) {
+    //     case rclcpp_action::ResultCode::SUCCEEDED:
+    //         break;
+    //     case rclcpp_action::ResultCode::ABORTED:
+    //         RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was aborted", action_name_.c_str());
+    //         return BT::NodeStatus::RUNNING;
+    //     case rclcpp_action::ResultCode::CANCELED:
+    //         RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was canceled", action_name_.c_str());
+    //         return BT::NodeStatus::RUNNING;
+    //     default:
+    //         RCLCPP_ERROR(node_->get_logger(), "[%s]: Unknown result code", action_name_.c_str());
+    //         return BT::NodeStatus::RUNNING;
+    // }
+
+    // RCLCPP_INFO(node_->get_logger(), "[%s]: result received", action_name_.c_str());
+
+    // return BT::NodeStatus::SUCCESS;
 }
 
 /**

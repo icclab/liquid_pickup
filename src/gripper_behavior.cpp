@@ -86,12 +86,6 @@ BT::NodeStatus GripperActuator::onRunning()
     auto result_future = action_client_->async_get_result(goal_handle_);
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: Waiting for result", action_name_.c_str());
-    // if (rclcpp::spin_until_future_complete(node_, result_future) !=
-    // rclcpp::FutureReturnCode::SUCCESS)
-    // {
-    // RCLCPP_ERROR(node_->get_logger(), "get result call failed :(");
-    // return BT::NodeStatus::FAILURE;
-    // }
 
     rclcpp_action::ClientGoalHandle<control_msgs::action::GripperCommand>::WrappedResult wrapped_result = result_future.get();
 
@@ -168,18 +162,6 @@ BT::NodeStatus GripperActuator::onRunning()
         RCLCPP_ERROR(node_->get_logger(), "[%s]: goal failed", action_name_.c_str());
         return BT::NodeStatus::FAILURE;
     }
-    
-    
-    // if (reached_goal)
-    // {
-    //     RCLCPP_INFO(node_->get_logger(), "goal reached");
-    //     return BT::NodeStatus::SUCCESS;
-    // }
-    // else
-    // {
-    //     RCLCPP_ERROR(node_->get_logger(), "goal failed");
-    //     return BT::NodeStatus::FAILURE;
-    // }
 }
 
 /**
