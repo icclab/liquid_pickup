@@ -26,6 +26,8 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
         RCLCPP_INFO(node_->get_logger(), "[%s]: Executor shared pointer was passed!", action_name_.c_str());
     }
 
+    costmap_publisher_ = node_->create_publisher<geometry_msgs::msg::Point>("/summit/sensor_obstacles", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
+    
     action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(node_, "/summit/navigate_to_pose");
 
     if (!action_client_->wait_for_action_server(std::chrono::seconds(20))) {
@@ -91,6 +93,9 @@ BT::NodeStatus GoToPose::onStart()
         nav_msg.pose.pose.orientation.z = 0.0;
         nav_msg.pose.pose.orientation.w = 1.0;
 
+        obstacle_x_ = nav_msg.pose.pose.position.x;
+        obstacle_y_ = nav_msg.pose.pose.position.y;
+
         RCLCPP_INFO(node_->get_logger(), "[%s]: Sending goal: header.frame_id: %s, x: %f, y: %f, z: %f, qx: %f, qy: %f, qz: %f, qw: %f, behavior_tree: %s", action_name_.c_str(), nav_msg.pose.header.frame_id.c_str(), nav_msg.pose.pose.position.x, nav_msg.pose.pose.position.y, nav_msg.pose.pose.position.z, nav_msg.pose.pose.orientation.x, nav_msg.pose.pose.orientation.y, nav_msg.pose.pose.orientation.z, nav_msg.pose.pose.orientation.w, nav_msg.behavior_tree.c_str());
     
         auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
@@ -122,9 +127,18 @@ BT::NodeStatus GoToPose::onRunning()
         RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance reached!", action_name_.c_str());
         auto cancel_goal = action_client_->async_cancel_goal(goal_handle_);
         auto cancel_goal_future = cancel_goal.get();
-        RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
-        
-        distance_remaining_ = std::numeric_limits<double>::max();
+        // RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
+
+        if (cancel_goal_future->return_code == 0)
+        {
+            distance_remaining_ = std::numeric_limits<double>::max();
+            geometry_msgs::msg::Point costmap_msg;
+
+            costmap_msg.x = obstacle_x_;
+            costmap_msg.y = obstacle_y_;
+            costmap_publisher_->publish(costmap_msg);
+        }
+ 
         return BT::NodeStatus::SUCCESS;
     }
 
