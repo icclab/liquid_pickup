@@ -48,8 +48,6 @@ private:
   // std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};    
   // std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::string action_name_;
-
-  std::vector<std::vector<double>> deploy_coordinates_dynamic_;
 };
 
 #pragma endregion

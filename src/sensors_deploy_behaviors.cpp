@@ -42,7 +42,7 @@ BT::NodeStatus SensorsDeploy::onStart()
 
     setOutput<int>("deploy_sensors_number", no_of_deploy_sensors);
     
-    RCLCPP_INFO(node_->get_logger(), "[%s]: %d sensors to be deployed!", action_name_.c_str(), no_of_deploy_sensors); 
+    RCLCPP_INFO(node_->get_logger(), "[%s]: %d sensor(s) to be deployed!", action_name_.c_str(), no_of_deploy_sensors); 
     
     return BT::NodeStatus::RUNNING;
 }

@@ -53,16 +53,17 @@ BT::NodeStatus GoToPose::onStart()
     auto nav_msg = nav2_msgs::action::NavigateToPose::Goal(); 
     nav_msg.behavior_tree = path_to_xml + behavior_tree_.value();
 
-    getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
+    std::vector<std::vector<double>> deploy_coordinates_dynamic;
+    getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
 
-    if (deploy_coordinates_dynamic_.empty())
+    if (deploy_coordinates_dynamic.empty())
     {
         RCLCPP_WARN(node_->get_logger(), "[%s]: no deploy coordinates in the list", action_name_.c_str());
     }
 
     else
     {
-        json vec_array = deploy_coordinates_dynamic_.at(0);
+        json vec_array = deploy_coordinates_dynamic.at(0);
 
         std::string vec_string = vec_array.dump();
 
@@ -71,8 +72,8 @@ BT::NodeStatus GoToPose::onStart()
         // 2D pose goal
         nav_msg.pose.header.stamp = node_->get_clock()->now();
         nav_msg.pose.header.frame_id = MAP_FRAME;
-        nav_msg.pose.pose.position.x = deploy_coordinates_dynamic_.at(0).at(0);
-        nav_msg.pose.pose.position.y = deploy_coordinates_dynamic_.at(0).at(1);
+        nav_msg.pose.pose.position.x = deploy_coordinates_dynamic.at(0).at(0);
+        nav_msg.pose.pose.position.y = deploy_coordinates_dynamic.at(0).at(1);
         nav_msg.pose.pose.position.z = 0.0;
         nav_msg.pose.pose.orientation.x = 0.0;
         nav_msg.pose.pose.orientation.y = 0.0;

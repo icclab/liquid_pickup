@@ -49,6 +49,7 @@ private:
     rclcpp::Node::SharedPtr node_;
     Manipulator manipulator_;
     std::string action_name_;
+    std::string error_message_;
 };
 
 #pragma endregion
