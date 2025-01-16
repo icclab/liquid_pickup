@@ -38,8 +38,10 @@ private:
   rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr goal_handle_;
   
   std::string action_name_;
-  bool cancel_goal_{false};
+  // bool cancel_goal_{false};
   int count_{0};
+  double goal_tolerance_{0.0};
+  double distance_remaining_ = std::numeric_limits<double>::max();
 };
 
 #pragma endregion

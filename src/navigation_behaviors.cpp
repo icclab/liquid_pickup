@@ -38,13 +38,8 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
 
 void GoToPose::feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback)
 {
-    double distance_remaining = feedback->distance_remaining;
-    RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining);
-
-    if (distance_remaining <= 0.5) 
-    {
-        cancel_goal_ = true;
-    }
+    distance_remaining_ = feedback->distance_remaining;
+    // RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining_);
 }
 
 /**
@@ -57,12 +52,17 @@ BT::NodeStatus GoToPose::onStart()
 {
     RCLCPP_INFO(node_->get_logger(), "action start: %s", action_name_.c_str());
 
+    distance_remaining_ = std::numeric_limits<double>::max();
+    count_ = 0;
+
     std::string package_share_directory = ament_index_cpp::get_package_share_directory("nav2_bt_navigator");
     std::string path_to_xml = package_share_directory + "/behavior_trees/";
     BT::Optional<std::string> behavior_tree_ = getInput<std::string>("behavior_tree");
 
     auto nav_msg = nav2_msgs::action::NavigateToPose::Goal(); 
     nav_msg.behavior_tree = path_to_xml + behavior_tree_.value();
+
+    getInput("goal_tolerance", goal_tolerance_);
 
     std::vector<std::vector<double>> deploy_coordinates_dynamic;
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
@@ -116,15 +116,15 @@ BT::NodeStatus GoToPose::onStart()
  * @return BT::NodeStatus The status of the node
  */
 BT::NodeStatus GoToPose::onRunning()
-{
-    if (cancel_goal_ && count_ > (5 * 1000 / 10)) 
+{   
+    if ((distance_remaining_ <= goal_tolerance_) && (count_ > (5 * 1000 / 10))) // wait 5 secs before calculating goal distance
     {
         RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance reached!", action_name_.c_str());
         auto cancel_goal = action_client_->async_cancel_goal(goal_handle_);
         auto cancel_goal_future = cancel_goal.get();
         RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
-        cancel_goal_ = false;
-        count_ = 0;
+        
+        distance_remaining_ = std::numeric_limits<double>::max();
         return BT::NodeStatus::SUCCESS;
     }
 
@@ -174,7 +174,7 @@ void GoToPose::onHalted(){}
  */
 BT::PortsList GoToPose::providedPorts()
 {
-    return {BT::InputPort<std::string>("behavior_tree"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic")};
+    return {BT::InputPort<std::string>("behavior_tree"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<std::string>("goal_tolerance")};
 }
 
 #pragma endregion
