@@ -1,7 +1,6 @@
 <root BTCPP_format="4" >
     <BehaviorTree ID="MainTree">
         <Sequence name="root_sequence"> 
-            <!-- Format for sensor_deploy_frame_names: sensor_1_name,sensor_2_name,sensor_3_name, -->
             <Sequence name="SensorsDeploy">
                 <SensorsDeploy name="SensorsDeploy" deploy_coordinates="{deploy_coordinates}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy_sensors_number="{deploy_sensors_number}"/>
                 <Repeat name="navigate_manipulate_repeater" num_cycles="{deploy_sensors_number}">
@@ -9,92 +8,32 @@
                         <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
                         <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" goal_tolerance="0.5"/>
 
-                        <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="true" target_x="-0.1" target_y="0.01" target_z="0.9" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="true" target_x="-0.1" target_y="0.01" target_z="0.5" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
+                        </RetryUntilSuccessful>
 
-                        <PregraspExecute name="execute_pregrasp_sensor_deploy" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"  execute_trajectory="{execute_trajectory}"/>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <PregraspExecute name="execute_pregrasp_sensor_deploy" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"  execute_trajectory="{execute_trajectory}"/>
+                        </RetryUntilSuccessful>
 
-                        <Grasp name="grasp_sensor_deploy" target_x="{target_x_cp}" target_y="{target_y_cp}" target_z="{target_z_cp}" target_roll="{target_roll_cp}" target_pitch ="{target_pitch_cp}" target_yaw = "{target_yaw_cp}" tcp_offset_x = "0.02" tcp_offset_y = "0.0" tcp_offset_z = "-0.12" />
-            
-                        <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.11"/>
-                        
-                        <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" goal_tolerance = "0.1" attach_or_detach = "detach"/>
-                        
-                        <RetreatZ name="retreat_vertically_up" add_pos_z = "0.2"/>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <Grasp name="grasp_sensor_deploy" target_x="{target_x_cp}" target_y="{target_y_cp}" target_z="{target_z_cp}" target_roll="{target_roll_cp}" target_pitch ="{target_pitch_cp}" target_yaw = "{target_yaw_cp}" tcp_offset_x = "0.0" tcp_offset_y = "0.0" tcp_offset_z = "-0.12" />
+                        </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
+                            <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.11"/>
+                        </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
+                            <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" goal_tolerance = "0.1" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
+                            <RetreatZ name="retreat_vertically_up" add_pos_z = "0.2"/>
+                        </RetryUntilSuccessful>  
                     </Sequence>
                 </Repeat>
             </Sequence>
-
-            <!-- <Sequence name="deploy_sensor"> -->
-            <!-- <Pregrasp name="deploy_sensor" action="deploy_sensor" target_x="0.6" target_y="0.01" target_z="0.5" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.1"/> -->
-            <!-- <ChangeGripper name="open_gripper" position="0.3" max_effort="0.0"/> -->
-            <!-- </Sequence> -->
-
-            <!-- <Sequence name="restore_arm_pose"> -->
-            <!-- <RobotInitializer name="restore_arm_pose" message="restore_arm_pose"/> -->
-            <!-- </Sequence> -->
-
-            <!-- <Sequence name="MoveItTaskConstructor"> -->
-                <!-- <MoveItTaskConstructor name="MoveItTaskConstructor"/> -->
-            <!-- </Sequence> -->
         </Sequence>
     </BehaviorTree>
-    <!-- <TreeNodesModel>
-        <Action ID="ChangeGripper">
-            <input_port name="max_effort" type="double"/>
-            <input_port name="position" type="double"/>
-        </Action>
-        <Action ID="Drop"/>
-        <Action ID="GoToPose">
-            <input_port name="target_yaw" type="double"/>
-            <input_port name="target_x" type="double"/>
-            <inout_port name="sensor_deploy_frame_names_dynamic" type="std::string"/>
-            <input_port name="target_y" type="double"/>
-            <input_port name="behavior_tree" type="std::string"/>
-        </Action>
-        <Action ID="Grasp">
-            <input_port name="target_roll" type="double"/>
-            <input_port name="target_pitch" type="double"/>
-            <input_port name="target_z" type="double"/>
-            <input_port name="target_y" type="double"/>
-            <input_port name="target_x" type="double"/>
-            <input_port name="target_yaw" type="double"/>
-            <input_port name="action" type="std::string"/>
-        </Action>
-        <Action ID="PregraspExecute">
-            <input_port name="pos_comma" type="int"/>
-            <inout_port name="sensor_deploy_frame_names_dynamic" type="std::string"/>
-            <input_port name="plan_trajectory" type="moveit_msgs::msg::RobotTrajectory_&lt;std::allocator&lt;void&gt; &gt;"/>
-            <input_port name="execute_trajectory" type="bool"/> 
-        </Action>
-        <Action ID="PregraspPlan">
-            <output_port name="plan_trajectory" type="moveit_msgs::msg::RobotTrajectory_&lt;std::allocator&lt;void&gt; &gt;"/>
-            <input_port name="target_yaw" type="double"/>
-            <input_port name="target_roll" type="double"/>
-            <input_port name="target_pitch" type="double"/>
-            <input_port name="pregrasp_offset" type="double"/>
-            <input_port name="target_z" type="double"/>
-            <input_port name="target_y" type="double"/>
-            <input_port name="target_x" type="double"/>
-            <input_port name="pose_from_tf" type="bool"/>
-            <output_port name="pos_comma" type="int"/>
-            <input_port name="sensor_deploy_frame_names_dynamic" type="std::string"/>
-            <output_port name="execute_trajectory" type="bool"/>
-        </Action>
-        <Action ID="RetreatZ"/>
-        <Action ID="RobotInitializer">
-            <input_port name="swab_container_yaw" type="double"/>
-            <input_port name="swab_container_y" type="double"/>
-            <input_port name="swab_yaw" type="double"/>
-            <input_port name="swab_y" type="double"/>
-            <input_port name="swab_container_z" type="double"/>
-            <input_port name="swab_container_x" type="double"/>
-            <input_port name="swab_z" type="double"/>
-            <input_port name="swab_x" type="double"/>
-        </Action>
-        <Action ID="ScanPose"/>
-        <Action ID="SensorsDeploy">
-            <output_port name="sensor_deploy_frame_names_dynamic" type="std::string"/>
-            <input_port name="sensor_deploy_frame_names" type="std::string"/>
-        </Action>
-    </TreeNodesModel> -->
 </root>

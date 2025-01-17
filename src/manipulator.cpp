@@ -142,7 +142,10 @@ moveit::core::MoveItErrorCode Manipulator::MoveGripperToPoseLinear(double target
     
     RCLCPP_INFO(node_->get_logger(), "linearly going to: header.frame_id: %s, x: %f, y: %f, z: %f, rotation qx: %f, qy: %f, qz: %f, qw: %f", target_base_footprint.header.frame_id.c_str(), target_base_footprint.pose.position.x, target_base_footprint.pose.position.y, target_base_footprint.pose.position.z, target_base_footprint.pose.orientation.x, target_base_footprint.pose.orientation.y, target_base_footprint.pose.orientation.z, target_base_footprint.pose.orientation.w);
 
-    MoveLinear(target_base_footprint.pose, false);
+    double res =  MoveLinear(target_base_footprint.pose, false);
+
+    RCLCPP_INFO(node_->get_logger(), "result: %f", res);
+
     return moveit::core::MoveItErrorCode::SUCCESS;
 }
 
