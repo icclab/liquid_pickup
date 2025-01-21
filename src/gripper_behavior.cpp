@@ -121,7 +121,7 @@ BT::NodeStatus GripperActuator::onRunning()
     RCLCPP_INFO(node_->get_logger(), "[%s]: commanded gripper gap size (in meters) = %f", action_name_.c_str(), gripper_cmd_postion);
 
     double gripper_goal_tolerance{0.0}; 
-    getInput<double>("goal_tolerance", gripper_goal_tolerance);
+    getInput<double>("gripper_goal_tolerance", gripper_goal_tolerance);
     RCLCPP_INFO(node_->get_logger(), "[%s]: maximum unsigned goal tolerance (in meters) = %f", action_name_.c_str(), gripper_goal_tolerance);
 
     double goal_diff{0.0};
@@ -178,7 +178,7 @@ void GripperActuator::onHalted(){};
  */
 BT::PortsList GripperActuator::providedPorts()
 {
-    return {BT::InputPort<double>("position"), BT::InputPort<double>("max_effort"), BT::InputPort<double>("goal_tolerance"), BT::InputPort<std::string>("attach_or_detach")};
+    return {BT::InputPort<double>("position"), BT::InputPort<double>("max_effort"), BT::InputPort<double>("gripper_goal_tolerance"), BT::InputPort<std::string>("attach_or_detach")};
 }
 
 #pragma endregion

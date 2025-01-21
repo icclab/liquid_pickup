@@ -1,0 +1,15 @@
+<root BTCPP_format="4" >
+    <BehaviorTree ID="MainTree">
+        <Sequence name="root_sequence"> 
+            <Sequence name="SensorsDeploy">
+                <RetryUntilSuccessful num_attempts="10">
+                    <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" set_deploy="{set_deploy}" target_x="-0.1" target_y="0.01" target_z="0.9" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
+                </RetryUntilSuccessful>
+
+                <RetryUntilSuccessful num_attempts="10">
+                    <PregraspExecute name="execute_pregrasp_sensor_deploy" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}" set_deploy="{set_deploy}"/>
+                </RetryUntilSuccessful>                  
+            </Sequence>
+        </Sequence>
+    </BehaviorTree>
+</root>

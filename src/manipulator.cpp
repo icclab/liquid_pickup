@@ -69,6 +69,7 @@ moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_b
     RCLCPP_INFO(node_->get_logger(), "going to: header.frame_id: %s, x: %f, y: %f, z: %f, rotation qx: %f, qy: %f, qz: %f, qw: %f", target_base_footprint.header.frame_id.c_str(), target_base_footprint.pose.position.x, target_base_footprint.pose.position.y, target_base_footprint.pose.position.z, target_base_footprint.pose.orientation.x, target_base_footprint.pose.orientation.y, target_base_footprint.pose.orientation.z, target_base_footprint.pose.orientation.w);
 
     manipulator_->setPoseTarget(target_base_footprint);
+    
     manipulator_->setPlanningTime(10.0);
 
     RCLCPP_INFO(node_->get_logger(), "Reference frame: %s", manipulator_->getPlanningFrame().c_str());

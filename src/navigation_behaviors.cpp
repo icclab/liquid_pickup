@@ -41,7 +41,7 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
 void GoToPose::feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback)
 {
     distance_remaining_ = feedback->distance_remaining;
-    // RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining_);
+    RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining_);
 }
 
 /**
@@ -64,7 +64,7 @@ BT::NodeStatus GoToPose::onStart()
     auto nav_msg = nav2_msgs::action::NavigateToPose::Goal(); 
     nav_msg.behavior_tree = path_to_xml + behavior_tree_.value();
 
-    getInput("goal_tolerance", goal_tolerance_);
+    getInput("nav_goal_tolerance", nav_goal_tolerance_);
 
     std::vector<std::vector<double>> deploy_coordinates_dynamic;
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
@@ -122,9 +122,9 @@ BT::NodeStatus GoToPose::onStart()
  */
 BT::NodeStatus GoToPose::onRunning()
 {   
-    if ((distance_remaining_ <= goal_tolerance_) && (count_ > (5 * 1000 / 10))) // wait 5 secs before calculating goal distance
+    if ((distance_remaining_ <= nav_goal_tolerance_) && (count_ > (5 * 1000 / 10))) // wait 5 secs before calculating goal distance
     {
-        RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance reached!", action_name_.c_str());
+        RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance of %f meters reached! Current distance: %f", action_name_.c_str(), nav_goal_tolerance_, distance_remaining_);
         auto cancel_goal = action_client_->async_cancel_goal(goal_handle_);
         auto cancel_goal_future = cancel_goal.get();
         // RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
@@ -145,7 +145,7 @@ BT::NodeStatus GoToPose::onRunning()
     else
     {
         count_++;
-        return  BT::NodeStatus::RUNNING;
+        return BT::NodeStatus::RUNNING;
     }
     
     // RCLCPP_INFO(node_->get_logger(), "[%s]: Waiting for result", action_name_.c_str());
@@ -188,7 +188,7 @@ void GoToPose::onHalted(){}
  */
 BT::PortsList GoToPose::providedPorts()
 {
-    return {BT::InputPort<std::string>("behavior_tree"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<std::string>("goal_tolerance")};
+    return {BT::InputPort<std::string>("behavior_tree"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<std::string>("nav_goal_tolerance")};
 }
 
 #pragma endregion

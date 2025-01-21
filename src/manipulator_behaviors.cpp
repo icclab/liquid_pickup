@@ -145,12 +145,6 @@ BT::NodeStatus ManipulatorPregraspPlan::onStart()
     BT::Optional<double> base_footprint_pitch = getInput<double>("target_pitch");
     BT::Optional<double> base_footprint_yaw = getInput<double>("target_yaw");
     BT::Optional<double> pregresp_offset = getInput<double>("pregrasp_offset");
-
-    std::vector<std::vector<double>> deploy_coordinates_dynamic_;
-    getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
-
-    double base_x = deploy_coordinates_dynamic_.at(0).at(0);
-    double base_y = deploy_coordinates_dynamic_.at(0).at(1);
     
     setOutput<double>("target_z_cp", base_footprint_z.value());
     setOutput<double>("target_roll_cp", base_footprint_roll.value());
@@ -163,9 +157,16 @@ BT::NodeStatus ManipulatorPregraspPlan::onStart()
     
     bool deploy{false};
     getInput<bool>("deploy", deploy);
-    
+    setOutput<bool>("set_deploy", deploy);
+
     if (deploy)
-    {
+    {   
+        std::vector<std::vector<double>> deploy_coordinates_dynamic_;
+        getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
+
+        double base_x = deploy_coordinates_dynamic_.at(0).at(0);
+        double base_y = deploy_coordinates_dynamic_.at(0).at(1);
+        
         RCLCPP_INFO(node_->get_logger(), "[%s]: deploying or liquid picking!", action_name_.c_str());
         
         tf2::Transform tf2_transform;
@@ -196,8 +197,6 @@ BT::NodeStatus ManipulatorPregraspPlan::onStart()
             
         plan_trajectory_ = manipulator_.PlanGripperToPose(base_x, base_y, base_footprint_z.value(), base_footprint_roll.value(), base_footprint_pitch.value(), base_footprint_yaw.value());
 
-        setOutput<moveit_msgs::msg::RobotTrajectory>("plan_trajectory", plan_trajectory_);
-
         setOutput<double>("target_x_cp", base_x);
         setOutput<double>("target_y_cp", base_y);
     }
@@ -206,11 +205,13 @@ BT::NodeStatus ManipulatorPregraspPlan::onStart()
     {
         RCLCPP_INFO(node_->get_logger(), "[%s]: getting manipulation target coordinates from BT XML input ports!", action_name_.c_str());
 
+        plan_trajectory_ = manipulator_.PlanGripperToPose(base_footprint_x.value(), base_footprint_y.value(), base_footprint_z.value(), base_footprint_roll.value(), base_footprint_pitch.value(), base_footprint_yaw.value());
+
         setOutput<double>("target_x_cp", base_footprint_x.value());
         setOutput<double>("target_y_cp", base_footprint_y.value());
-
-        plan_trajectory_ = manipulator_.PlanGripperToPose(base_footprint_x.value(), base_footprint_y.value(), base_footprint_z.value(), base_footprint_roll.value(), base_footprint_pitch.value(), base_footprint_yaw.value());
     }
+
+    setOutput<moveit_msgs::msg::RobotTrajectory>("plan_trajectory", plan_trajectory_);
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: pregrasp plan finished", action_name_.c_str());
     
@@ -319,7 +320,7 @@ void ManipulatorPregraspPlan::onHalted() {}
  */
 BT::PortsList ManipulatorPregraspPlan::providedPorts()
 {
-    return {BT::InputPort<double>("target_x"), BT::InputPort<double>("target_y"), BT::InputPort<double>("target_z"), BT::InputPort<double>("pregrasp_offset"), BT::InputPort<double>("target_roll"), BT::InputPort<double>("target_pitch"), BT::InputPort<double>("target_yaw"), BT::OutputPort<moveit_msgs::msg::RobotTrajectory>("plan_trajectory"), BT::OutputPort<bool>("execute_trajectory"), BT::OutputPort<double>("target_x_cp"), BT::OutputPort<double>("target_y_cp"), BT::OutputPort<double>("target_z_cp"), BT::OutputPort<double>("target_roll_cp"), BT::OutputPort<double>("target_pitch_cp"), BT::OutputPort<double>("target_yaw_cp"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("deploy")};
+    return {BT::InputPort<double>("target_x"), BT::InputPort<double>("target_y"), BT::InputPort<double>("target_z"), BT::InputPort<double>("pregrasp_offset"), BT::InputPort<double>("target_roll"), BT::InputPort<double>("target_pitch"), BT::InputPort<double>("target_yaw"), BT::OutputPort<moveit_msgs::msg::RobotTrajectory>("plan_trajectory"), BT::OutputPort<bool>("execute_trajectory"), BT::OutputPort<double>("target_x_cp"), BT::OutputPort<double>("target_y_cp"), BT::OutputPort<double>("target_z_cp"), BT::OutputPort<double>("target_roll_cp"), BT::OutputPort<double>("target_pitch_cp"), BT::OutputPort<double>("target_yaw_cp"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("deploy"), BT::OutputPort<bool>("set_deploy")};
 }
 
 #pragma endregion
@@ -372,15 +373,15 @@ BT::NodeStatus ManipulatorPregraspExecute::onStart()
         RCLCPP_INFO(node_->get_logger(), "[%s]: Error message: %s", action_name_.c_str(), error_message_.c_str());
         
         execute_trajectory = false;
+
+        return BT::NodeStatus::RUNNING;
     }
 
     else
     {
-        RCLCPP_ERROR(node_->get_logger(), "[%s]: signaled to not execute trajectory, returning failure", action_name_.c_str());
+        RCLCPP_WARN(node_->get_logger(), "[%s]: signaled to not execute trajectory", action_name_.c_str());
         return BT::NodeStatus::FAILURE;
     }
-
-    return BT::NodeStatus::RUNNING;
 }
 
 /**
@@ -390,14 +391,20 @@ BT::NodeStatus ManipulatorPregraspExecute::onStart()
  */
 BT::NodeStatus ManipulatorPregraspExecute::onRunning()
 {
+    bool set_deploy{false};
+    getInput<bool>("set_deploy", set_deploy);
+
     if (error_message_ == "SUCCESS")
     {
-        std::vector<std::vector<double>> deploy_coordinates_dynamic;
-        getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
-        deploy_coordinates_dynamic.erase(deploy_coordinates_dynamic.begin());
-        setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
+        if (set_deploy)
+        {
+            std::vector<std::vector<double>> deploy_coordinates_dynamic;
+            getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
+            deploy_coordinates_dynamic.erase(deploy_coordinates_dynamic.begin());
+            setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
 
-        RCLCPP_INFO(node_->get_logger(), "[%s]: %d sensor(s) yet to be deployed", action_name_.c_str(), deploy_coordinates_dynamic.size());
+            RCLCPP_INFO(node_->get_logger(), "[%s]: %lu sensor(s) yet to be deployed", action_name_.c_str(), deploy_coordinates_dynamic.size());
+        }
         
         return BT::NodeStatus::SUCCESS;
     }
@@ -422,7 +429,7 @@ void ManipulatorPregraspExecute::onHalted() {}
  */
 BT::PortsList ManipulatorPregraspExecute::providedPorts()
 {
-    return {BT::InputPort<moveit_msgs::msg::RobotTrajectory>("plan_trajectory"), BT::InputPort<bool>("execute_trajectory"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic")};
+    return {BT::InputPort<moveit_msgs::msg::RobotTrajectory>("plan_trajectory"), BT::InputPort<bool>("execute_trajectory"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("set_deploy")};
 }
 
 #pragma endregion

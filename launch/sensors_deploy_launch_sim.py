@@ -22,6 +22,7 @@ def generate_launch_description():
             name='bt_node',
             namespace='summit',
             parameters=[{"bt_xml": "sensors_deploy.xml"}, {"use_sim_time": True}, {"coordinates": coordinates}],
+            # parameters=[{"bt_xml": "manipulation_test.xml"}, {"use_sim_time": True}, {"coordinates": coordinates}],
             output='screen',
             remappings=[('/tf', '/summit/tf'), ('/tf_static', '/summit/tf_static')],
             emulate_tty=True,
