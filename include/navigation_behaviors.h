@@ -25,7 +25,7 @@ class GoToPose : public BT::StatefulActionNode
 {
 public:
   GoToPose(const std::string &name, const BT::NodeConfiguration &config, const rclcpp::Node::SharedPtr node, const rclcpp::executors::MultiThreadedExecutor::SharedPtr executor);
-  void feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback);
+  // void feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback);
   BT::NodeStatus onStart() override;
   BT::NodeStatus onRunning() override;
   void onHalted() override;
@@ -43,9 +43,9 @@ private:
   double obstacle_y_{0.0};
   
   std::string action_name_;
-  int count_{0};
-  double nav_goal_tolerance_{0.0};
-  double distance_remaining_ = std::numeric_limits<double>::max();
+  // int count_{0};
+  // double nav_goal_tolerance_{0.0};
+  // double distance_remaining_ = std::numeric_limits<double>::max();
 };
 
 #pragma endregion

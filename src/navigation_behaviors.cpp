@@ -38,11 +38,11 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
     RCLCPP_INFO(node_->get_logger(), "[%s]: Initialized!", action_name_.c_str());
 }
 
-void GoToPose::feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback)
-{
-    distance_remaining_ = feedback->distance_remaining;
-    RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining_);
-}
+// void GoToPose::feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback)
+// {
+//     distance_remaining_ = feedback->distance_remaining;
+//     // RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining_);
+// }
 
 /**
  * @brief method to be called at the beginning.
@@ -54,8 +54,8 @@ BT::NodeStatus GoToPose::onStart()
 {
     RCLCPP_INFO(node_->get_logger(), "action start: %s", action_name_.c_str());
 
-    distance_remaining_ = std::numeric_limits<double>::max();
-    count_ = 0;
+    // distance_remaining_ = std::numeric_limits<double>::max();
+    // count_ = 0;
 
     std::string package_share_directory = ament_index_cpp::get_package_share_directory("nav2_bt_navigator");
     std::string path_to_xml = package_share_directory + "/behavior_trees/";
@@ -64,7 +64,7 @@ BT::NodeStatus GoToPose::onStart()
     auto nav_msg = nav2_msgs::action::NavigateToPose::Goal(); 
     nav_msg.behavior_tree = path_to_xml + behavior_tree_.value();
 
-    getInput("nav_goal_tolerance", nav_goal_tolerance_);
+    // getInput("nav_goal_tolerance", nav_goal_tolerance_);
 
     std::vector<std::vector<double>> deploy_coordinates_dynamic;
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
@@ -98,12 +98,12 @@ BT::NodeStatus GoToPose::onStart()
 
         RCLCPP_INFO(node_->get_logger(), "[%s]: Sending goal: header.frame_id: %s, x: %f, y: %f, z: %f, qx: %f, qy: %f, qz: %f, qw: %f, behavior_tree: %s", action_name_.c_str(), nav_msg.pose.header.frame_id.c_str(), nav_msg.pose.pose.position.x, nav_msg.pose.pose.position.y, nav_msg.pose.pose.position.z, nav_msg.pose.pose.orientation.x, nav_msg.pose.pose.orientation.y, nav_msg.pose.pose.orientation.z, nav_msg.pose.pose.orientation.w, nav_msg.behavior_tree.c_str());
     
-        auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-        send_goal_options.feedback_callback = std::bind(&GoToPose::feedback_callback, this, _1, _2);
-        auto goal_handle_future = action_client_->async_send_goal(nav_msg, send_goal_options);
+        // auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+        // send_goal_options.feedback_callback = std::bind(&GoToPose::feedback_callback, this, _1, _2);
+        // auto goal_handle_future = action_client_->async_send_goal(nav_msg, send_goal_options);
 
         // Ask server to achieve some goal and wait until it's accepted
-        // auto goal_handle_future = action_client_->async_send_goal(nav_msg);
+        auto goal_handle_future = action_client_->async_send_goal(nav_msg);
         
         goal_handle_ = goal_handle_future.get();
         if (!goal_handle_) {
@@ -122,56 +122,62 @@ BT::NodeStatus GoToPose::onStart()
  */
 BT::NodeStatus GoToPose::onRunning()
 {   
-    if ((distance_remaining_ <= nav_goal_tolerance_) && (count_ > (5 * 1000 / 10))) // wait 5 secs before calculating goal distance
-    {
-        RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance of %f meters reached! Current distance: %f", action_name_.c_str(), nav_goal_tolerance_, distance_remaining_);
-        auto cancel_goal = action_client_->async_cancel_goal(goal_handle_);
-        auto cancel_goal_future = cancel_goal.get();
-        // RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
+    // if ((distance_remaining_ <= nav_goal_tolerance_) && (count_ > (5 * 1000 / 10))) // wait 5 secs before calculating goal distance
+    // {
+    //     RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance of %f meters reached! Current distance: %f", action_name_.c_str(), nav_goal_tolerance_, distance_remaining_);
+    //     auto cancel_goal = action_client_->async_cancel_goal(goal_handle_);
+    //     auto cancel_goal_future = cancel_goal.get();
+    //     // RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
 
-        if (cancel_goal_future->return_code == 0)
-        {
-            distance_remaining_ = std::numeric_limits<double>::max();
-            geometry_msgs::msg::Point costmap_msg;
+    //     if (cancel_goal_future->return_code == 0)
+    //     {
+    //         distance_remaining_ = std::numeric_limits<double>::max();
+    //         geometry_msgs::msg::Point costmap_msg;
 
-            costmap_msg.x = obstacle_x_;
-            costmap_msg.y = obstacle_y_;
-            costmap_publisher_->publish(costmap_msg);
-        }
+    //         costmap_msg.x = obstacle_x_;
+    //         costmap_msg.y = obstacle_y_;
+    //         costmap_publisher_->publish(costmap_msg);
+    //     }
  
-        return BT::NodeStatus::SUCCESS;
-    }
-
-    else
-    {
-        count_++;
-        return BT::NodeStatus::RUNNING;
-    }
-    
-    // RCLCPP_INFO(node_->get_logger(), "[%s]: Waiting for result", action_name_.c_str());
-
-    // // Wait for the server to be done with the goal
-    // auto result_future = action_client_->async_get_result(goal_handle_);
-
-    // rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult wrapped_result = result_future.get();
-
-    // switch (wrapped_result.code) {
-    //     case rclcpp_action::ResultCode::SUCCEEDED:
-    //         break;
-    //     case rclcpp_action::ResultCode::ABORTED:
-    //         RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was aborted", action_name_.c_str());
-    //         return BT::NodeStatus::RUNNING;
-    //     case rclcpp_action::ResultCode::CANCELED:
-    //         RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was canceled", action_name_.c_str());
-    //         return BT::NodeStatus::RUNNING;
-    //     default:
-    //         RCLCPP_ERROR(node_->get_logger(), "[%s]: Unknown result code", action_name_.c_str());
-    //         return BT::NodeStatus::RUNNING;
+    //     return BT::NodeStatus::SUCCESS;
     // }
 
-    // RCLCPP_INFO(node_->get_logger(), "[%s]: result received", action_name_.c_str());
+    // else
+    // {
+    //     count_++;
+    //     return BT::NodeStatus::RUNNING;
+    // }
+    
+    RCLCPP_INFO(node_->get_logger(), "[%s]: Waiting for result", action_name_.c_str());
 
-    // return BT::NodeStatus::SUCCESS;
+    // Wait for the server to be done with the goal
+    auto result_future = action_client_->async_get_result(goal_handle_);
+
+    rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult wrapped_result = result_future.get();
+
+    switch (wrapped_result.code) {
+        case rclcpp_action::ResultCode::SUCCEEDED:
+            break;
+        case rclcpp_action::ResultCode::ABORTED:
+            RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was aborted", action_name_.c_str());
+            return BT::NodeStatus::RUNNING;
+        case rclcpp_action::ResultCode::CANCELED:
+            RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was canceled", action_name_.c_str());
+            return BT::NodeStatus::RUNNING;
+        default:
+            RCLCPP_ERROR(node_->get_logger(), "[%s]: Unknown result code", action_name_.c_str());
+            return BT::NodeStatus::RUNNING;
+    }
+
+    RCLCPP_INFO(node_->get_logger(), "[%s]: result received", action_name_.c_str());
+
+    geometry_msgs::msg::Point costmap_msg;
+
+    costmap_msg.x = obstacle_x_;
+    costmap_msg.y = obstacle_y_;
+    costmap_publisher_->publish(costmap_msg);
+
+    return BT::NodeStatus::SUCCESS;
 }
 
 /**

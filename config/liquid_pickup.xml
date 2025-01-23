@@ -4,7 +4,7 @@
             
             <RetryUntilSuccessful num_attempts="10">
                 <Sequence name="open_gripper">
-                    <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.3" goal_tolerance = "0.1" attach_or_detach = "detach"/>
+                    <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.3" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
                 </Sequence>  
             </RetryUntilSuccessful>
 
@@ -16,26 +16,42 @@
                         <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5"/>
         
                         <RetryUntilSuccessful num_attempts="10">
-                            <!-- <PregraspPlan name="plan_collect_liquid_sample" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="true" set_deploy="{set_deploy}" target_x="-0.1" target_y="0.01" target_z="0.9" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/> -->
+                            <!-- <PregraspPlan name="plan_collect_liquid_sample" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="true" target_x="-0.1" target_y="0.01" target_z="0.9" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/> -->
 
-                            <PregraspPlan name="plan_collect_liquid_sample" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" set_deploy="{set_deploy}" target_x="-0.1" target_y="0.01" target_z="0.9" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
+                            <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" target_x="0.6" target_y="0.01" target_z="0.5" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
                         </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">
-                            <PregraspExecute name="execute_collect_liquid_sample" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}" set_deploy="{set_deploy}"/>
+                            <PregraspExecute name="execute_collect_liquid_sample" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}"/>
                         </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">
-                            <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.11"/>
+                            <Grasp name="grasp_sensor_deploy" target_x="{target_x_cp}" target_y="{target_y_cp}" target_z="{target_z_cp}" target_roll="{target_roll_cp}" target_pitch ="{target_pitch_cp}" target_yaw = "{target_yaw_cp}" tcp_offset_x = "0.0" tcp_offset_y = "0.0" tcp_offset_z = "-0.12" />
                         </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">
-                            <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" goal_tolerance = "0.1" attach_or_detach = "detach"/>
+                            <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
                         </RetryUntilSuccessful>
                         
                         <RetryUntilSuccessful num_attempts="10">
                             <RetreatZ name="retreat_vertically_up" add_pos_z = "0.2"/>
                         </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
+                            <PregraspPlan name="plan_collect_liquid_sample" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" target_x="-0.1" target_y="0.01" target_z="0.9" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
+                        </RetryUntilSuccessful>     
+
+                         <RetryUntilSuccessful num_attempts="10">
+                            <PregraspExecute name="execute_collect_liquid_sample" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}"/>
+                        </RetryUntilSuccessful>
+                        
+                        <RetryUntilSuccessful num_attempts="10">
+                            <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.1"/>
+                        </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
+                            <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>                   
                     </Sequence>    
                 </Repeat>
             </Sequence>        

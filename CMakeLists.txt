@@ -34,6 +34,7 @@ find_package(gazebo_msgs REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
+find_package(geometric_shapes REQUIRED)
 
 include_directories(include config) 
 
@@ -50,7 +51,7 @@ set(BT_SOURCES
 )
 
 add_executable(liquid_pickup_node src/bt_node.cpp ${BT_SOURCES})
-ament_target_dependencies(liquid_pickup_node rclcpp behaviortree_cpp geometry_msgs tf2 tf2_ros tf2_geometry_msgs yaml-cpp moveit_ros_planning_interface rclcpp_action rclcpp_components moveit_msgs control_msgs moveit_visual_tools nav2_msgs gazebo_msgs tf2_eigen std_msgs nav2_costmap_2d) # gazebo_ros OGRE moveit_task_constructor_core)
+ament_target_dependencies(liquid_pickup_node rclcpp behaviortree_cpp geometry_msgs tf2 tf2_ros tf2_geometry_msgs yaml-cpp moveit_ros_planning_interface rclcpp_action rclcpp_components moveit_msgs control_msgs moveit_visual_tools nav2_msgs gazebo_msgs tf2_eigen std_msgs nav2_costmap_2d geometric_shapes) # gazebo_ros OGRE moveit_task_constructor_core)
 
 target_link_libraries(liquid_pickup_node yaml-cpp)
 
