@@ -66,7 +66,7 @@ moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_b
     geometry_msgs::msg::Quaternion msg_quat = tf2::toMsg(tf2_quat);
     target_base_footprint.pose.orientation = msg_quat;
 
-    RCLCPP_INFO(node_->get_logger(), "going to: header.frame_id: %s, x: %f, y: %f, z: %f, rotation qx: %f, qy: %f, qz: %f, qw: %f", target_base_footprint.header.frame_id.c_str(), target_base_footprint.pose.position.x, target_base_footprint.pose.position.y, target_base_footprint.pose.position.z, target_base_footprint.pose.orientation.x, target_base_footprint.pose.orientation.y, target_base_footprint.pose.orientation.z, target_base_footprint.pose.orientation.w);
+    RCLCPP_INFO(node_->get_logger(), "MoveIt going to: header.frame_id: %s, x: %f, y: %f, z: %f, rotation qx: %f, qy: %f, qz: %f, qw: %f", target_base_footprint.header.frame_id.c_str(), target_base_footprint.pose.position.x, target_base_footprint.pose.position.y, target_base_footprint.pose.position.z, target_base_footprint.pose.orientation.x, target_base_footprint.pose.orientation.y, target_base_footprint.pose.orientation.z, target_base_footprint.pose.orientation.w);
 
     manipulator_->setPoseTarget(target_base_footprint);
     
@@ -141,7 +141,7 @@ moveit::core::MoveItErrorCode Manipulator::MoveGripperToPoseLinear(double target
     target_base_footprint.pose.position.y += tcp_offset_y;
     target_base_footprint.pose.position.z += tcp_offset_z;
     
-    RCLCPP_INFO(node_->get_logger(), "linearly going to: header.frame_id: %s, x: %f, y: %f, z: %f, rotation qx: %f, qy: %f, qz: %f, qw: %f", target_base_footprint.header.frame_id.c_str(), target_base_footprint.pose.position.x, target_base_footprint.pose.position.y, target_base_footprint.pose.position.z, target_base_footprint.pose.orientation.x, target_base_footprint.pose.orientation.y, target_base_footprint.pose.orientation.z, target_base_footprint.pose.orientation.w);
+    RCLCPP_INFO(node_->get_logger(), "MoveIt: linearly going to: header.frame_id: %s, x: %f, y: %f, z: %f, rotation qx: %f, qy: %f, qz: %f, qw: %f", target_base_footprint.header.frame_id.c_str(), target_base_footprint.pose.position.x, target_base_footprint.pose.position.y, target_base_footprint.pose.position.z, target_base_footprint.pose.orientation.x, target_base_footprint.pose.orientation.y, target_base_footprint.pose.orientation.z, target_base_footprint.pose.orientation.w);
 
     double res =  MoveLinear(target_base_footprint.pose, false);
 

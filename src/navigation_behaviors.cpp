@@ -66,17 +66,17 @@ BT::NodeStatus GoToPose::onStart()
 
     // getInput("nav_goal_tolerance", nav_goal_tolerance_);
 
-    std::vector<std::vector<double>> deploy_coordinates_dynamic;
-    getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
+    getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
 
-    if (deploy_coordinates_dynamic.empty())
+    if (deploy_coordinates_dynamic_.empty())
     {
         RCLCPP_WARN(node_->get_logger(), "[%s]: no deploy coordinates in the list", action_name_.c_str());
+        return BT::NodeStatus::FAILURE;
     }
 
     else
     {
-        json vec_array = deploy_coordinates_dynamic.at(0);
+        json vec_array = deploy_coordinates_dynamic_.at(0);
 
         std::string vec_string = vec_array.dump();
 
@@ -85,8 +85,8 @@ BT::NodeStatus GoToPose::onStart()
         // 2D pose goal
         nav_msg.pose.header.stamp = node_->get_clock()->now();
         nav_msg.pose.header.frame_id = MAP_FRAME;
-        nav_msg.pose.pose.position.x = deploy_coordinates_dynamic.at(0).at(0);
-        nav_msg.pose.pose.position.y = deploy_coordinates_dynamic.at(0).at(1);
+        nav_msg.pose.pose.position.x = deploy_coordinates_dynamic_.at(0).at(0);
+        nav_msg.pose.pose.position.y = deploy_coordinates_dynamic_.at(0).at(1);
         nav_msg.pose.pose.position.z = 0.0;
         nav_msg.pose.pose.orientation.x = 0.0;
         nav_msg.pose.pose.orientation.y = 0.0;
@@ -96,7 +96,7 @@ BT::NodeStatus GoToPose::onStart()
         obstacle_x_ = nav_msg.pose.pose.position.x;
         obstacle_y_ = nav_msg.pose.pose.position.y;
 
-        RCLCPP_INFO(node_->get_logger(), "[%s]: Sending goal: header.frame_id: %s, x: %f, y: %f, z: %f, qx: %f, qy: %f, qz: %f, qw: %f, behavior_tree: %s", action_name_.c_str(), nav_msg.pose.header.frame_id.c_str(), nav_msg.pose.pose.position.x, nav_msg.pose.pose.position.y, nav_msg.pose.pose.position.z, nav_msg.pose.pose.orientation.x, nav_msg.pose.pose.orientation.y, nav_msg.pose.pose.orientation.z, nav_msg.pose.pose.orientation.w, nav_msg.behavior_tree.c_str());
+        RCLCPP_INFO(node_->get_logger(), "[%s]: Sending Nav2 goal: header.frame_id: %s, x: %f, y: %f, z: %f, qx: %f, qy: %f, qz: %f, qw: %f, behavior_tree: %s", action_name_.c_str(), nav_msg.pose.header.frame_id.c_str(), nav_msg.pose.pose.position.x, nav_msg.pose.pose.position.y, nav_msg.pose.pose.position.z, nav_msg.pose.pose.orientation.x, nav_msg.pose.pose.orientation.y, nav_msg.pose.pose.orientation.z, nav_msg.pose.pose.orientation.w, nav_msg.behavior_tree.c_str());
     
         // auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
         // send_goal_options.feedback_callback = std::bind(&GoToPose::feedback_callback, this, _1, _2);
@@ -194,7 +194,7 @@ void GoToPose::onHalted(){}
  */
 BT::PortsList GoToPose::providedPorts()
 {
-    return {BT::InputPort<std::string>("behavior_tree"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<std::string>("nav_goal_tolerance")};
+    return {BT::InputPort<std::string>("behavior_tree"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<std::string>("nav_goal_tolerance")};
 }
 
 #pragma endregion

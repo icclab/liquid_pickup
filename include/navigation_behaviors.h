@@ -46,6 +46,8 @@ private:
   // int count_{0};
   // double nav_goal_tolerance_{0.0};
   // double distance_remaining_ = std::numeric_limits<double>::max();
+
+  std::vector<std::vector<double>> deploy_coordinates_dynamic_;
 };
 
 #pragma endregion

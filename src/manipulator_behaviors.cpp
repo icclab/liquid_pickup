@@ -110,11 +110,14 @@ ManipulatorPregraspPlan::ManipulatorPregraspPlan(const std::string &name, const 
         RCLCPP_INFO(node_->get_logger(), "[%s]: Node shared pointer was passed!", action_name_.c_str());
     }
 
-    const rclcpp::QoS feedback_sub_qos = rclcpp::QoS(1);
+    // const rclcpp::QoS feedback_sub_qos = rclcpp::QoS(1);
+
+    // trajectory_execute_subscription_ = node_->create_subscription<std_msgs::msg::Bool>(
+    //   "/summit/trajectory_execute", feedback_sub_qos, std::bind(&ManipulatorPregraspPlan::topic_callback, this, _1));
 
     trajectory_execute_subscription_ = node_->create_subscription<std_msgs::msg::Bool>(
-      "/summit/trajectory_execute", feedback_sub_qos, std::bind(&ManipulatorPregraspPlan::topic_callback, this, _1));
-
+        "/summit/trajectory_execute", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(), std::bind(&ManipulatorPregraspPlan::topic_callback, this, _1));
+    
     wait_set_.add_subscription(trajectory_execute_subscription_);
 
     tf_buffer_ = std::make_unique<tf2_ros::Buffer>(node_->get_clock());
@@ -158,11 +161,10 @@ BT::NodeStatus ManipulatorPregraspPlan::onStart()
     bool deploy{false};
     getInput<bool>("deploy", deploy);
 
+    getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
+    
     if (deploy)
     {   
-        std::vector<std::vector<double>> deploy_coordinates_dynamic_;
-        getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
-
         double base_x = deploy_coordinates_dynamic_.at(0).at(0);
         double base_y = deploy_coordinates_dynamic_.at(0).at(1);
         
@@ -198,6 +200,8 @@ BT::NodeStatus ManipulatorPregraspPlan::onStart()
 
         setOutput<double>("target_x_cp", base_x);
         setOutput<double>("target_y_cp", base_y);
+
+        base_x_coord_ = base_x;
     }
 
     else
@@ -208,6 +212,8 @@ BT::NodeStatus ManipulatorPregraspPlan::onStart()
 
         setOutput<double>("target_x_cp", base_footprint_x.value());
         setOutput<double>("target_y_cp", base_footprint_y.value());
+
+        base_x_coord_ = base_footprint_x.value();
     }
 
     setOutput<moveit_msgs::msg::RobotTrajectory>("plan_trajectory", plan_trajectory_);
@@ -227,12 +233,29 @@ BT::NodeStatus ManipulatorPregraspPlan::onRunning()
     int traj_exec_wait_min{5};
     
     if (!plan_trajectory_.joint_trajectory.header.frame_id.empty())
-    {
+    {    
+        // Always execute trajectory
+        setOutput<bool>("execute_trajectory", true);
+        RCLCPP_WARN(node_->get_logger(), "[%s]: Trajectory execute auto approved!", action_name_.c_str());
+
+        if (base_x_coord_ > 0.0) // if object is in front of the arm then only erase the first coordinate from the sensor deploy list
+        {
+            RCLCPP_WARN(node_->get_logger(), "[%s]: sensor deployed, removing from dynamic list", action_name_.c_str());
+
+            deploy_coordinates_dynamic_.erase(deploy_coordinates_dynamic_.begin());
+
+            setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
+
+            RCLCPP_INFO(node_->get_logger(), "[%s]: %lu sensor(s) yet to be deployed", action_name_.c_str(), deploy_coordinates_dynamic_.size());
+        }
+
+        return BT::NodeStatus::SUCCESS;
+
         if (count_ == 0)
         {
             RCLCPP_WARN(node_->get_logger(), "[%s]: valid trajectory plan received!", action_name_.c_str());
             
-            RCLCPP_WARN(node_->get_logger(), "[%s]: check: Execute Trajectory? Waiting for publisher for about %d mins max., Format: $ ros2 topic pub /summit/trajectory_execute std_msgs/msg/Bool \"data: true\" --once", action_name_.c_str(), traj_exec_wait_min);
+            RCLCPP_WARN(node_->get_logger(), "[%s]: Execute Trajectory? Waiting for publisher for about %d mins max., Format: $ ros2 topic pub /summit/trajectory_execute std_msgs/msg/Bool \"data: true\" --once", action_name_.c_str(), traj_exec_wait_min);
             count_++;
             return BT::NodeStatus::RUNNING;
         }
@@ -250,13 +273,13 @@ BT::NodeStatus ManipulatorPregraspPlan::onRunning()
                     rclcpp::MessageInfo msg_info;
                     if (trajectory_execute_subscription_->take(take_msg, msg_info)) {
                         bool value_received = take_msg.data;
-                        RCLCPP_WARN(node_->get_logger(), "[%s]: check: Received take trajectory execute (0: False, 1: True): %d", action_name_.c_str(), value_received);
+                        RCLCPP_WARN(node_->get_logger(), "[%s]: Received take trajectory execute (0: False, 1: True): %d", action_name_.c_str(), value_received);
 
                         setOutput<bool>("execute_trajectory", value_received);
                         
                         if (value_received)
                         {
-                            RCLCPP_WARN(node_->get_logger(), "[%s]: check: Trajectory execute approved", action_name_.c_str());
+                            RCLCPP_WARN(node_->get_logger(), "[%s]: Trajectory execute approved", action_name_.c_str());
 
                             value_received = false;
                             
@@ -265,7 +288,7 @@ BT::NodeStatus ManipulatorPregraspPlan::onRunning()
 
                         else
                         {
-                            RCLCPP_ERROR(node_->get_logger(), "[%s]: check: Trajectory execute disapproved", action_name_.c_str());
+                            RCLCPP_ERROR(node_->get_logger(), "[%s]: Trajectory execute disapproved", action_name_.c_str());
                             return BT::NodeStatus::FAILURE;
                         }
                     }
@@ -275,14 +298,14 @@ BT::NodeStatus ManipulatorPregraspPlan::onRunning()
                 case rclcpp::WaitResultKind::Timeout:
                 {
                     if (rclcpp::ok()) {
-                        RCLCPP_WARN(node_->get_logger(), "[%s]: check: Timeout. No message received yet, still waiting for about %d secs", action_name_.c_str(), timeout_secs - count_);
+                        RCLCPP_WARN(node_->get_logger(), "[%s]: Timeout. No message received yet, still waiting for about %d secs", action_name_.c_str(), timeout_secs - count_);
                     }
                     break;
                 }
 
                 default:
                 {
-                    RCLCPP_ERROR(node_->get_logger(), "[%s]: check: Error. Wait-set failed.", action_name_.c_str());
+                    RCLCPP_ERROR(node_->get_logger(), "[%s]: Error. Wait-set failed.", action_name_.c_str());
                 }
             }
         }
@@ -319,7 +342,7 @@ void ManipulatorPregraspPlan::onHalted() {}
  */
 BT::PortsList ManipulatorPregraspPlan::providedPorts()
 {
-    return {BT::InputPort<double>("target_x"), BT::InputPort<double>("target_y"), BT::InputPort<double>("target_z"), BT::InputPort<double>("pregrasp_offset"), BT::InputPort<double>("target_roll"), BT::InputPort<double>("target_pitch"), BT::InputPort<double>("target_yaw"), BT::OutputPort<moveit_msgs::msg::RobotTrajectory>("plan_trajectory"), BT::OutputPort<bool>("execute_trajectory"), BT::OutputPort<double>("target_x_cp"), BT::OutputPort<double>("target_y_cp"), BT::OutputPort<double>("target_z_cp"), BT::OutputPort<double>("target_roll_cp"), BT::OutputPort<double>("target_pitch_cp"), BT::OutputPort<double>("target_yaw_cp"), BT::InputPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("deploy")};
+    return {BT::InputPort<double>("target_x"), BT::InputPort<double>("target_y"), BT::InputPort<double>("target_z"), BT::InputPort<double>("pregrasp_offset"), BT::InputPort<double>("target_roll"), BT::InputPort<double>("target_pitch"), BT::InputPort<double>("target_yaw"), BT::OutputPort<moveit_msgs::msg::RobotTrajectory>("plan_trajectory"), BT::OutputPort<bool>("execute_trajectory"), BT::OutputPort<double>("target_x_cp"), BT::OutputPort<double>("target_y_cp"), BT::OutputPort<double>("target_z_cp"), BT::OutputPort<double>("target_roll_cp"), BT::OutputPort<double>("target_pitch_cp"), BT::OutputPort<double>("target_yaw_cp"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("deploy")};
 }
 
 #pragma endregion
@@ -392,13 +415,6 @@ BT::NodeStatus ManipulatorPregraspExecute::onRunning()
 {
     if (error_message_ == "SUCCESS")
     {
-        std::vector<std::vector<double>> deploy_coordinates_dynamic;
-        getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
-        deploy_coordinates_dynamic.erase(deploy_coordinates_dynamic.begin());
-        setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", deploy_coordinates_dynamic);
-
-        RCLCPP_INFO(node_->get_logger(), "[%s]: %lu sensor(s) yet to be deployed", action_name_.c_str(), deploy_coordinates_dynamic.size());
-
         return BT::NodeStatus::SUCCESS;
     }
     

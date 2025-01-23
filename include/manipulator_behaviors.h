@@ -80,6 +80,8 @@ private:
     std::string action_name_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};    
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+    std::vector<std::vector<double>> deploy_coordinates_dynamic_;
+    double base_x_coord_{0.0};
 };
 
 #pragma endregion
