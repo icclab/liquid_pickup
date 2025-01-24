@@ -14,9 +14,9 @@
                             <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" target_x="0.6" target_y="0.01" target_z="0.5" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
                         </RetryUntilSuccessful>
 
-                        <RetryUntilSuccessful num_attempts="10">
-                            <PregraspExecute name="execute_pregrasp_sensor_deploy" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}"/>
-                        </RetryUntilSuccessful>
+                        <!-- <RetryUntilSuccessful num_attempts="10"> -->
+                            <!-- <PregraspExecute name="execute_pregrasp_sensor_deploy" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}"/> -->
+                        <!-- </RetryUntilSuccessful> -->
 
                         <!-- <RetryUntilSuccessful num_attempts="10">
                             <Grasp name="grasp_sensor_deploy" target_x="{target_x_cp}" target_y="{target_y_cp}" target_z="{target_z_cp}" target_roll="{target_roll_cp}" target_pitch ="{target_pitch_cp}" target_yaw = "{target_yaw_cp}" tcp_offset_x = "0.0" tcp_offset_y = "0.0" tcp_offset_z = "-0.12" />
@@ -30,14 +30,14 @@
                             <RetreatZ name="retreat_vertically_up" add_pos_z = "0.12"/>
                         </RetryUntilSuccessful>  -->
 
-                        <RetryUntilSuccessful num_attempts="10">
-                            <PregraspPlan name="plan_pregrasp_sensor_pickup" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" target_x="-0.1" target_y="0.01" target_z="0.8" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
-                        </RetryUntilSuccessful>     
+                        <!-- <RetryUntilSuccessful num_attempts="10"> -->
+                            <!-- <PregraspPlan name="plan_pregrasp_sensor_pickup" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" target_x="-0.1" target_y="0.01" target_z="0.8" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/> -->
+                        <!-- </RetryUntilSuccessful>      -->
 
-                         <RetryUntilSuccessful num_attempts="10">
+                        <!-- <RetryUntilSuccessful num_attempts="10">
                             <PregraspExecute name="execute_pregrasp_sensor_pickup" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}"/>
-                        </RetryUntilSuccessful>
-
+                        </RetryUntilSuccessful> -->
+                        
                         <!-- <RetryUntilSuccessful num_attempts="10">
                             <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.1"/>
                         </RetryUntilSuccessful>   
