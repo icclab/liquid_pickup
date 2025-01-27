@@ -82,7 +82,7 @@ BT::NodeStatus GoToPose::onStart()
 
         std::string vec_string = vec_array.dump();
 
-        RCLCPP_INFO(node_->get_logger(), "[%s]: going to  %s in the dynamic list", action_name_.c_str(), vec_string.c_str());
+        RCLCPP_INFO(node_->get_logger(), "[%s]: going to %s in the dynamic list", action_name_.c_str(), vec_string.c_str());
         
         // 2D pose goal
         nav_msg.pose.header.stamp = node_->get_clock()->now();

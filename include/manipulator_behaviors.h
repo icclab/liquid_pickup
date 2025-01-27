@@ -179,4 +179,30 @@ private:
 
 #pragma endregion
 
+#pragma region ManipulatorJointGoal
+
+/**
+ * @brief Class/Behavior to move the robots arm into the scanning position
+ * 
+ */
+class ManipulatorJointGoal : public BT::StatefulActionNode
+{
+public:
+    ManipulatorJointGoal(const std::string &name, const BT::NodeConfiguration &config, const rclcpp::Node::SharedPtr node);
+    BT::NodeStatus onStart() override;
+    BT::NodeStatus onRunning() override;
+    void onHalted() override;
+    static BT::PortsList providedPorts();
+    
+private:
+    rclcpp::Node::SharedPtr node_;
+    Manipulator manipulator_;
+    std::string action_name_;
+    std::string error_message_;
+    std::string joint_goal_;
+    std::vector<std::vector<double>> deploy_coordinates_dynamic_;
+};
+
+#pragma endregion
+
 #endif

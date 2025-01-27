@@ -63,6 +63,8 @@ public:
 
     moveit_msgs::msg::RobotTrajectory PlanGripperToPose(double target_base_footprint_x_, double target_base_footprint_y_, double target_base_footprint_z_, double target_base_footprint_roll_, double target_base_footprint_pitch_, double target_base_footprint_yaw_);
 
+    moveit::core::MoveItErrorCode MoveGripperToJoint(std::string joint_goal);
+
     moveit::core::MoveItErrorCode ExecuteGripperToPose(moveit_msgs::msg::RobotTrajectory trajectory);
 
     moveit::core::MoveItErrorCode MoveGripperToPoseLinear(double target_base_footprint_x_, double target_base_footprint_y_, double target_base_footprint_z_, double target_base_footprint_roll_, double target_base_footprint_pitch_, double target_base_footprint_yaw_, double tcp_offset_x, double tcp_offset_y, double tcp_offset_z);

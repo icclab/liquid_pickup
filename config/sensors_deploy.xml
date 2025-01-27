@@ -8,10 +8,14 @@
                         <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
                         <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5"/>
 
-                        <RetryUntilSuccessful num_attempts="10">
+                        <!-- <RetryUntilSuccessful num_attempts="10"> -->
                             <!-- <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="true" target_x="-0.1" target_y="0.01" target_z="0.9" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/> -->
 
-                            <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" target_x="0.6" target_y="0.01" target_z="0.5" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/>
+                            <!-- <PregraspPlan name="plan_pregrasp_sensor_deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy="false" target_x="0.6" target_y="0.01" target_z="0.5" target_roll="0.01" target_pitch ="3.14" target_yaw = "0.01" pregrasp_offset="0.0" plan_trajectory="{plan_trajectory}" execute_trajectory="{execute_trajectory}" target_x_cp= "{target_x_cp}" target_y_cp= "{target_y_cp}" target_z_cp= "{target_z_cp}" target_roll_cp= "{target_roll_cp}" target_pitch_cp= "{target_pitch_cp}" target_yaw_cp= "{target_yaw_cp}"/> -->
+                        <!-- </RetryUntilSuccessful> -->
+
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="joint_sensor_deploy" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
                         </RetryUntilSuccessful>
 
                         <!-- <RetryUntilSuccessful num_attempts="10"> -->

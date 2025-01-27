@@ -543,8 +543,6 @@ ManipulatorDrop::ManipulatorDrop(const std::string &name, const BT::NodeConfigur
  */
 BT::NodeStatus ManipulatorDrop::onStart()
 {
-    // LOG_MANI_START(action_name_);
-
     RCLCPP_INFO(node_->get_logger(), "action start: %s", action_name_.c_str());
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: going to drop object", action_name_.c_str());
@@ -645,6 +643,96 @@ BT::PortsList ManipulatorScanPose::providedPorts()
 {
     RCLCPP_WARN(rclcpp::get_logger("ManipulatorScanPose"), "returning empty BT::PortsList!");
     return {};
+}
+
+#pragma endregion
+
+#pragma region ManipulatorJointGoal
+
+/**
+ * @brief Construct a new Manipulator Scan Pose:: Manipulator Scan Pose object
+ * 
+ * @param name The name of the behavior
+ */
+ManipulatorJointGoal::ManipulatorJointGoal(const std::string &name, const BT::NodeConfiguration &config, const rclcpp::Node::SharedPtr node)
+    : BT::StatefulActionNode(name, config), manipulator_(node)
+{
+    action_name_ = this->name();
+    
+    if (node != nullptr)
+    {
+        node_ = node;
+        RCLCPP_INFO(node_->get_logger(), "[%s]: Node shared pointer was passed!", action_name_.c_str());
+    }
+
+    RCLCPP_INFO(node_->get_logger(), "[%s]: Initialized!", action_name_.c_str());
+}
+
+/**
+ * @brief method to be called at the beginning.
+ *        If it returns RUNNING, this becomes an asychronous node.
+ * 
+ * @return BT::NodeStatus The status of the node
+ */
+BT::NodeStatus ManipulatorJointGoal::onStart()
+{
+    getInput("joint_goal", joint_goal_);
+    getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
+
+    RCLCPP_INFO(node_->get_logger(), "[%s]: moving EE to %s position", action_name_.c_str(), joint_goal_.c_str());
+
+    moveit::core::MoveItErrorCode error_code =  manipulator_.MoveGripperToJoint(joint_goal_);
+    error_message_ = moveit::core::error_code_to_string(error_code);
+    
+    return BT::NodeStatus::RUNNING;
+}
+
+/**
+ * @brief method invoked by a RUNNING action.
+ * 
+ * @return BT::NodeStatus The status of the node
+ */
+BT::NodeStatus ManipulatorJointGoal::onRunning()
+{
+    if (error_message_ == "SUCCESS")
+    {
+        RCLCPP_INFO(node_->get_logger(), "[%s]: moved EE to %s position", action_name_.c_str(), joint_goal_.c_str());
+
+       if (joint_goal_ == "deploy")
+       {
+            RCLCPP_WARN(node_->get_logger(), "[%s]: sensor deployed, removing from dynamic list", action_name_.c_str());
+
+            deploy_coordinates_dynamic_.erase(deploy_coordinates_dynamic_.begin());
+
+            setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
+
+            RCLCPP_INFO(node_->get_logger(), "[%s]: %lu sensor(s) yet to be deployed", action_name_.c_str(), deploy_coordinates_dynamic_.size());
+
+            return BT::NodeStatus::SUCCESS;
+        }
+    }
+    
+    else
+    {
+        return BT::NodeStatus::FAILURE;
+    }
+}
+
+/**
+ * @brief when the method halt() is called and the action is RUNNING, this method is invoked.
+ *        This is a convenient place todo a cleanup, if needed.
+ * 
+ */
+void ManipulatorJointGoal::onHalted() {}
+
+/**
+ * @brief Gets the ports provided by this behavior.
+ *
+ * @return BT::PortsList The list of the ports
+ */
+BT::PortsList ManipulatorJointGoal::providedPorts()
+{
+    return {BT::InputPort<std::string>("joint_goal"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic")};
 }
 
 #pragma endregion

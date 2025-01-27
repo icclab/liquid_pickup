@@ -47,7 +47,7 @@ Manipulator::Manipulator(const rclcpp::Node::SharedPtr node)
  * 
  * @param target_pose The endpose to reach
  * @param offset The offset to the end pose
- * @return moveit::core::MoveItErrorCode The errorcode
+ * @return moveit_msgs::msg::RobotTrajectory The robot trajectory
  */
 moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_base_footprint_x_, double target_base_footprint_y_, double target_base_footprint_z_, double target_base_footprint_roll_, double target_base_footprint_pitch_, double target_base_footprint_yaw_)
 {
@@ -96,6 +96,21 @@ moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_b
         moveit_msgs::msg::RobotTrajectory empty_trajectory;
         return empty_trajectory;
     }
+}
+
+/**
+ * @brief Moves the gripper to a joint goal
+ * 
+ * @param joint_goal The joint_goal to reach
+ * @return moveit::core::MoveItErrorCode The errorcode
+ */
+moveit::core::MoveItErrorCode Manipulator::MoveGripperToJoint(std::string joint_goal)
+{
+    manipulator_->setGoalJointTolerance(MANIPULATOR_JOINT_TOLERANCE);
+    manipulator_->setPoseReferenceFrame(BASE_FRAME);
+    manipulator_->setJointValueTarget(initial_position_);
+    manipulator_->setPlanningTime(30.0);
+    return manipulator_->move();
 }
 
 moveit::core::MoveItErrorCode Manipulator::ExecuteGripperToPose(moveit_msgs::msg::RobotTrajectory trajectory)

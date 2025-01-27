@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
   factory.registerNodeType<GoToPose>("GoToPose", node_, executor);
   factory.registerNodeType<SensorsDeploy>("SensorsDeploy", node_, coordinates);
   factory.registerNodeType<ManipulatorPregraspExecute>("PregraspExecute", node_);
+  factory.registerNodeType<ManipulatorJointGoal>("JointGoal", node_);
 
   std::string xml_models = BT::writeTreeNodesModelXML(factory);
   std::cerr << xml_models;
