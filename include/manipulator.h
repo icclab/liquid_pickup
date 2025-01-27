@@ -73,6 +73,8 @@ public:
     double MoveLinearVec(double x, double y, double z);
     moveit::core::MoveItErrorCode DropObject(void);
     moveit::core::MoveItErrorCode MoveToInitialPosition(void);
+    moveit::core::MoveItErrorCode MoveToPickSwabPosition(void);
+    moveit::core::MoveItErrorCode MoveToDeployPosition(void); 
     moveit::core::MoveItErrorCode MoveToDrivingPosition(void);
     moveit::core::MoveItErrorCode MoveToScanningPosition(void);
 
@@ -82,12 +84,15 @@ private:
     std::shared_ptr<moveit::planning_interface::MoveGroupInterface> manipulator_;
 
     geometry_msgs::msg::PoseStamped drop_pose_;
-    std::map<std::string, double> initial_position_, driving_position_, scanning_position_;
+    std::map<std::string, double> initial_position_, pick_swab_, deploy_, driving_position_, scanning_position_;
     void InitializeSummitXlPoses(void);
     void InitializeInitialPose(void);
+    void PickSwabPose(void);
+    void DeployPose(void);
     void InitializeDrivingPose(void);
     void InitializeScanningPose(void);
     void InitializeDropPose(void);
+
     rclcpp::Node::SharedPtr node_;
     std::string yaml_file;
     YAML::Node arm_positions;

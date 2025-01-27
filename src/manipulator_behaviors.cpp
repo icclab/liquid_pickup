@@ -707,13 +707,14 @@ BT::NodeStatus ManipulatorJointGoal::onRunning()
             setOutput<std::vector<std::vector<double>>>("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
 
             RCLCPP_INFO(node_->get_logger(), "[%s]: %lu sensor(s) yet to be deployed", action_name_.c_str(), deploy_coordinates_dynamic_.size());
-
-            return BT::NodeStatus::SUCCESS;
         }
+        
+        return BT::NodeStatus::SUCCESS;
     }
     
     else
     {
+        RCLCPP_ERROR(node_->get_logger(), "[%s]: joint goal failure", action_name_.c_str());
         return BT::NodeStatus::FAILURE;
     }
 }

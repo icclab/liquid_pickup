@@ -43,7 +43,7 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
 void GoToPose::feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback)
 {
     distance_remaining_ = feedback->distance_remaining;
-    RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining_);
+    // RCLCPP_INFO(node_->get_logger(), "[%s]: distance remaining %f", action_name_.c_str(), distance_remaining_);
 }
 
 /**

@@ -15,7 +15,15 @@
                         <!-- </RetryUntilSuccessful> -->
 
                         <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="joint_sensor_deploy" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                        </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
                             <JointGoal name="joint_sensor_deploy" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                        </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="joint_sensor_deploy" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
                         </RetryUntilSuccessful>
 
                         <!-- <RetryUntilSuccessful num_attempts="10"> -->
@@ -41,7 +49,7 @@
                         <!-- <RetryUntilSuccessful num_attempts="10">
                             <PregraspExecute name="execute_pregrasp_sensor_pickup" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}"/>
                         </RetryUntilSuccessful> -->
-                        
+
                         <!-- <RetryUntilSuccessful num_attempts="10">
                             <RetreatZ name="retreat_vertically_down" add_pos_z = "-0.1"/>
                         </RetryUntilSuccessful>   

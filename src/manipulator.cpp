@@ -106,11 +106,25 @@ moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_b
  */
 moveit::core::MoveItErrorCode Manipulator::MoveGripperToJoint(std::string joint_goal)
 {
-    manipulator_->setGoalJointTolerance(MANIPULATOR_JOINT_TOLERANCE);
-    manipulator_->setPoseReferenceFrame(BASE_FRAME);
-    manipulator_->setJointValueTarget(initial_position_);
-    manipulator_->setPlanningTime(30.0);
-    return manipulator_->move();
+    moveit::core::MoveItErrorCode code;
+
+    if (joint_goal == "pick_swab")
+    {
+        code = Manipulator::MoveToPickSwabPosition();
+    }
+
+    else if (joint_goal == "deploy")
+    {
+        code = Manipulator::MoveToDeployPosition();
+    }
+
+    else
+    {
+        RCLCPP_ERROR(node_->get_logger(), "unknown joint goal given, returning failure");
+        code = moveit::core::MoveItErrorCode::FAILURE;
+    }
+    
+    return code;
 }
 
 moveit::core::MoveItErrorCode Manipulator::ExecuteGripperToPose(moveit_msgs::msg::RobotTrajectory trajectory)
@@ -263,6 +277,34 @@ moveit::core::MoveItErrorCode Manipulator::MoveToInitialPosition(void)
 }
 
 /**
+ * @brief Moves the UR5-Robot to pick swab position.
+ * 
+ * @return moveit::core::MoveItErrorCode 
+ */
+moveit::core::MoveItErrorCode Manipulator::MoveToPickSwabPosition(void) 
+{
+    manipulator_->setGoalJointTolerance(MANIPULATOR_JOINT_TOLERANCE);
+    manipulator_->setPoseReferenceFrame(BASE_FRAME);
+    manipulator_->setJointValueTarget(pick_swab_);
+    manipulator_->setPlanningTime(30);
+    return manipulator_->move();
+}
+
+/**
+ * @brief Moves the UR5-Robot to deploy position.
+ * 
+ * @return moveit::core::MoveItErrorCode 
+ */
+moveit::core::MoveItErrorCode Manipulator::MoveToDeployPosition(void) 
+{
+    manipulator_->setGoalJointTolerance(MANIPULATOR_JOINT_TOLERANCE);
+    manipulator_->setPoseReferenceFrame(BASE_FRAME);
+    manipulator_->setJointValueTarget(deploy_);
+    manipulator_->setPlanningTime(30);
+    return manipulator_->move();
+}
+
+/**
  * @brief Moves the UR5-Robot to its driving position.
  * 
  * @return moveit::core::MoveItErrorCode 
@@ -363,6 +405,8 @@ bool Manipulator::DetachObjectFromGripper()
 void Manipulator::InitializeSummitXlPoses()
 {
     Manipulator::InitializeInitialPose();
+    Manipulator::PickSwabPose();
+    Manipulator::DeployPose();
     Manipulator::InitializeDrivingPose();
     Manipulator::InitializeScanningPose();
     Manipulator::InitializeDropPose();
@@ -384,6 +428,38 @@ void Manipulator::InitializeInitialPose()
     initial_position_["arm_wrist_1_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[3]);
     initial_position_["arm_wrist_2_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[4]);
     initial_position_["arm_wrist_3_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[5]);
+}
+
+/**
+ * @brief Initializes the pick swab pose
+ * 
+ */
+void Manipulator::PickSwabPose()
+{
+    std::vector<double> joint_angles = arm_positions["pick_swab"].as<std::vector<double>>();
+
+    pick_swab_["arm_shoulder_pan_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[0]);
+    pick_swab_["arm_shoulder_lift_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[1]);
+    pick_swab_["arm_elbow_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[2]);
+    pick_swab_["arm_wrist_1_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[3]);
+    pick_swab_["arm_wrist_2_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[4]);
+    pick_swab_["arm_wrist_3_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[5]);
+}
+
+/**
+ * @brief Initializes the pick swab pose
+ * 
+ */
+void Manipulator::DeployPose()
+{
+    std::vector<double> joint_angles = arm_positions["deploy"].as<std::vector<double>>();
+
+    deploy_["arm_shoulder_pan_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[0]);
+    deploy_["arm_shoulder_lift_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[1]);
+    deploy_["arm_elbow_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[2]);
+    deploy_["arm_wrist_1_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[3]);
+    deploy_["arm_wrist_2_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[4]);
+    deploy_["arm_wrist_3_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[5]);
 }
 
 /**
