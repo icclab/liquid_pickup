@@ -126,7 +126,7 @@ BT::NodeStatus GoToPose::onRunning()
     {
         if ((distance_remaining_ > 0.0) && (distance_remaining_ <= nav_goal_tolerance_) && (count_ > (5 * 1000 / 10))) // wait 5 secs before calculating goal distance
         {
-            RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance of %f meters reached! Current distance: %f", action_name_.c_str(), nav_goal_tolerance_, distance_remaining_);
+            RCLCPP_WARN(node_->get_logger(), "[%s]: cancelling goal as goal tolerance of %f meters reached! Current distance: %f meters", action_name_.c_str(), nav_goal_tolerance_, distance_remaining_);
             auto cancel_goal = action_client_->async_cancel_goal(goal_handle_);
             auto cancel_goal_future = cancel_goal.get();
             // RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);

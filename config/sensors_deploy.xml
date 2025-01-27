@@ -15,7 +15,7 @@
                         <!-- </RetryUntilSuccessful> -->
 
                         <RetryUntilSuccessful num_attempts="10">
-                            <JointGoal name="joint_sensor_deploy" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                            <JointGoal name="joint_pick_sensor" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
                         </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">
@@ -23,7 +23,7 @@
                         </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">
-                            <JointGoal name="joint_sensor_deploy" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                            <JointGoal name="joint_sensor_return" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
                         </RetryUntilSuccessful>
 
                         <!-- <RetryUntilSuccessful num_attempts="10"> -->
