@@ -35,7 +35,7 @@
                         </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">
-                            <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+                            <ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
                         </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">

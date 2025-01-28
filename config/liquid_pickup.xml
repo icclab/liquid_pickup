@@ -2,7 +2,7 @@
     <BehaviorTree ID="MainTree">
         <Sequence name="root_sequence"> 
             <Sequence name="SensorsDeploy">
-                <SensorsDeploy name="SensorsDeploy" deploy_coordinates="{deploy_coordinates}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy_sensors_number="{deploy_sensors_number}"/>
+                <SensorsDeploy name="LiquidPickup" deploy_coordinates="{deploy_coordinates}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy_sensors_number="{deploy_sensors_number}"/>
                 <Repeat name="navigate_manipulate_repeater" num_cycles="{deploy_sensors_number}">
                     <Sequence name="NavigateManipulate">
                     <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
@@ -18,17 +18,17 @@
                             <!-- <PregraspExecute name="execute_collect_liquid_sample" plan_trajectory="{plan_trajectory}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" execute_trajectory="{execute_trajectory}"/> -->
                         <!-- </RetryUntilSuccessful> -->
 
-                        <!-- <RetryUntilSuccessful num_attempts="10">
-                                <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.3" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
-                        </RetryUntilSuccessful> -->
-
                         <RetryUntilSuccessful num_attempts="10">
                             <JointGoal name="joint_swab_pickup" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
                         </RetryUntilSuccessful>
 
-                        <!-- <RetryUntilSuccessful num_attempts="10">
-                                <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.3" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
-                        </RetryUntilSuccessful> -->
+                        <RetryUntilSuccessful num_attempts="10">
+                                <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>
+
+                        <RetryUntilSuccessful num_attempts="10">
+                                <ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>
 
                         <RetryUntilSuccessful num_attempts="10">
                             <JointGoal name="joint_liquid_pickup" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
