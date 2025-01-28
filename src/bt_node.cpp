@@ -12,12 +12,6 @@
 #include <string>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-#define LOG_TIME
-
-#ifdef LOG_TIME
-#include "time_logger.h"
-#endif
-
 #include "manipulator_behaviors.h"  
 #include "gripper_behavior.h"
 #include "navigation_behaviors.h"
@@ -96,10 +90,6 @@ int main(int argc, char *argv[])
   // Tick the tree until it reaches a terminal state
   BT::NodeStatus status = BT::NodeStatus::RUNNING;
   auto start = node_->get_clock()->now().seconds();
-      
-  #ifdef LOG_TIME
-  BATimeLogger::InitFiles();
-  #endif
 
   // status = tree.tickWhileRunning(std::chrono::milliseconds(100)); 
   status = tree.tickWhileRunning(); // default sleep is 10 ms.
@@ -121,10 +111,6 @@ int main(int argc, char *argv[])
 
   RCLCPP_INFO(node_->get_logger(), "Done with status %s!", status_str.c_str());
   RCLCPP_INFO(node_->get_logger(), "Used time: %.2lf seconds", seconds);
-      
-  #ifdef LOG_TIME
-    BATimeLogger::CloseFiles();
-  #endif
 
   rclcpp::shutdown();
 

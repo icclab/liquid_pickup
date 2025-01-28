@@ -41,7 +41,7 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr costmap_publisher_;
   double obstacle_x_{0.0};
   double obstacle_y_{0.0};
-  
+
   std::string action_name_;
 
   double nav_goal_tolerance_{0.0};
