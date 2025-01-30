@@ -85,8 +85,11 @@ moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_b
     {
         RCLCPP_INFO(node_->get_logger(), "planning succesful! visualizing plan as trajectory line");
         
-        const moveit::core::JointModelGroup* joint_model_group = manipulator_->getCurrentState()->getJointModelGroup(GROUP_NAME);
-        visual_tools_->publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
+        // const moveit::core::JointModelGroup* joint_model_group = manipulator_->getCurrentState()->getJointModelGroup(GROUP_NAME);
+        // visual_tools_->publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
+        
+        Manipulator::VisualizeArmTrajectory(my_plan);
+
         return my_plan.trajectory_;
     }
 
@@ -125,6 +128,12 @@ moveit::core::MoveItErrorCode Manipulator::MoveGripperToJoint(std::string joint_
     }
     
     return code;
+}
+
+void Manipulator::VisualizeArmTrajectory(moveit::planning_interface::MoveGroupInterface::Plan my_plan)
+{
+    const moveit::core::JointModelGroup* joint_model_group = manipulator_->getCurrentState()->getJointModelGroup(GROUP_NAME);
+    visual_tools_->publishTrajectoryLine(my_plan.trajectory_, joint_model_group); 
 }
 
 moveit::core::MoveItErrorCode Manipulator::ExecuteGripperToPose(moveit_msgs::msg::RobotTrajectory trajectory)
@@ -262,6 +271,43 @@ moveit::core::MoveItErrorCode Manipulator::DropObject(void)
     return manipulator_->move();
 }
 
+moveit::core::MoveItErrorCode Manipulator::PlanAndExecute()
+{
+    // Create a plan to that target pose
+    moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+
+    bool success = (manipulator_->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+
+    // Execute the plan
+    if (success)
+    {
+        RCLCPP_INFO(node_->get_logger(), "planning succesful! visualizing plan");
+        
+        Manipulator::VisualizeArmTrajectory(my_plan);
+
+        moveit::core::MoveItErrorCode error_code = manipulator_->execute(my_plan);
+        std::string error_message = moveit::core::error_code_to_string(error_code);
+
+        if (error_message == "SUCCESS")
+        {
+            RCLCPP_INFO(node_->get_logger(), "executed plan!");
+            return error_code;
+        }
+
+        else
+        {
+            RCLCPP_ERROR(node_->get_logger(), "execution failed!, returning failure");
+            return error_code;
+        }
+    }
+
+    else
+    {
+        RCLCPP_INFO(node_->get_logger(), "planning failed, returning failure");
+        return moveit::core::MoveItErrorCode::FAILURE;
+    }
+}
+
 /**
  * @brief Moves the UR5-Robot to its initial position due to the swab container.
  * 
@@ -287,7 +333,8 @@ moveit::core::MoveItErrorCode Manipulator::MoveToPickSwabPosition(void)
     manipulator_->setPoseReferenceFrame(BASE_FRAME);
     manipulator_->setJointValueTarget(pick_swab_);
     manipulator_->setPlanningTime(30);
-    return manipulator_->move();
+    // return manipulator_->move();
+    return Manipulator::PlanAndExecute();
 }
 
 /**
@@ -301,7 +348,8 @@ moveit::core::MoveItErrorCode Manipulator::MoveToDeployPosition(void)
     manipulator_->setPoseReferenceFrame(BASE_FRAME);
     manipulator_->setJointValueTarget(deploy_);
     manipulator_->setPlanningTime(30);
-    return manipulator_->move();
+    // return manipulator_->move();
+    return Manipulator::PlanAndExecute();
 }
 
 /**

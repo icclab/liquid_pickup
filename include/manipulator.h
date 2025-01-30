@@ -30,6 +30,7 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
+#include "moveit/utils/moveit_error_code.h"
 
 #pragma endregion
 
@@ -65,6 +66,8 @@ public:
 
     moveit::core::MoveItErrorCode MoveGripperToJoint(std::string joint_goal);
 
+    void VisualizeArmTrajectory(moveit::planning_interface::MoveGroupInterface::Plan my_plan);
+
     moveit::core::MoveItErrorCode ExecuteGripperToPose(moveit_msgs::msg::RobotTrajectory trajectory);
 
     moveit::core::MoveItErrorCode MoveGripperToPoseLinear(double target_base_footprint_x_, double target_base_footprint_y_, double target_base_footprint_z_, double target_base_footprint_roll_, double target_base_footprint_pitch_, double target_base_footprint_yaw_, double tcp_offset_x, double tcp_offset_y, double tcp_offset_z);
@@ -72,6 +75,8 @@ public:
     double MoveLinear(geometry_msgs::msg::Pose end_pose, bool check_collision = true);
     double MoveLinearVec(double x, double y, double z);
     moveit::core::MoveItErrorCode DropObject(void);
+
+    moveit::core::MoveItErrorCode PlanAndExecute();
     moveit::core::MoveItErrorCode MoveToInitialPosition(void);
     moveit::core::MoveItErrorCode MoveToPickSwabPosition(void);
     moveit::core::MoveItErrorCode MoveToDeployPosition(void); 
