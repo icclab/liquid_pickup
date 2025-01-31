@@ -55,8 +55,12 @@ ament_target_dependencies(liquid_pickup_node rclcpp behaviortree_cpp geometry_ms
 
 target_link_libraries(liquid_pickup_node yaml-cpp)
 
+add_executable(cancel_nav2_node src/cancel_nav2.cpp)
+ament_target_dependencies(cancel_nav2_node rclcpp rclcpp_action std_msgs nav2_msgs)
+
 install(TARGETS
     liquid_pickup_node
+    cancel_nav2_node
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY

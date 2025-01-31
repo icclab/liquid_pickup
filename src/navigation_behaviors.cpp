@@ -26,6 +26,13 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
         RCLCPP_INFO(node_->get_logger(), "[%s]: Executor shared pointer was passed!", action_name_.c_str());
     }
 
+    // is_active_publisher_ = node_->create_publisher<std_msgs::msg::Bool>("/summit/nav2_bt_is_active", 10);
+
+    is_active_publisher_ = node_->create_publisher<std_msgs::msg::Bool>("/summit/nav2_bt_is_active", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
+
+    timer_ = node_->create_wall_timer(
+      10ms, std::bind(&GoToPose::timer_callback, this));
+
     costmap_publisher_ = node_->create_publisher<geometry_msgs::msg::Point>("/summit/sensor_obstacles", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
     
     action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(node_, "/summit/navigate_to_pose");
@@ -39,6 +46,14 @@ GoToPose::GoToPose(const std::string &name, const BT::NodeConfiguration &config,
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: Initialized!", action_name_.c_str());
 }
+
+void GoToPose::timer_callback()
+  {
+    std_msgs::msg::Bool is_active;
+    is_active.data = true;
+
+    is_active_publisher_->publish(is_active);
+  }
 
 void GoToPose::feedback_callback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> feedback)
 {
