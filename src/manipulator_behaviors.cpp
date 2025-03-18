@@ -476,10 +476,12 @@ BT::NodeStatus ManipulatorPostgraspRetreat::onStart()
     RCLCPP_INFO(node_->get_logger(), "action start: %s", action_name_.c_str());
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: post grasp started", action_name_.c_str());
-    
+
+    BT::Optional<double> add_pos_x = getInput<double>("add_pos_x");
+    BT::Optional<double> add_pos_y = getInput<double>("add_pos_y");
     BT::Optional<double> add_pos_z = getInput<double>("add_pos_z");
     
-    double res = manipulator_.MoveLinearVec(0, 0, add_pos_z.value());
+    double res = manipulator_.MoveLinearVec(add_pos_x.value(), add_pos_y.value(), add_pos_z.value());
     
     RCLCPP_INFO(node_->get_logger(), "[%s]: post grasp finished with result: %f", action_name_.c_str(), res);
     return BT::NodeStatus::RUNNING;
@@ -509,7 +511,7 @@ void ManipulatorPostgraspRetreat::onHalted() {}
  */
 BT::PortsList ManipulatorPostgraspRetreat::providedPorts()
 {
-    return {BT::InputPort<double>("add_pos_z")};
+    return {BT::InputPort<double>("add_pos_x"), BT::InputPort<double>("add_pos_y"), BT::InputPort<double>("add_pos_z")};
 }
 
 #pragma endregion

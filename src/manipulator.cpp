@@ -109,23 +109,38 @@ moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_b
  */
 moveit::core::MoveItErrorCode Manipulator::MoveGripperToJoint(std::string joint_goal)
 {
+    std::vector<double> joint_angles = arm_positions[joint_goal].as<std::vector<double>>();
+
+    joint_position_["arm_shoulder_pan_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[0]);
+    joint_position_["arm_shoulder_lift_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[1]);
+    joint_position_["arm_elbow_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[2]);
+    joint_position_["arm_wrist_1_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[3]);
+    joint_position_["arm_wrist_2_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[4]);
+    joint_position_["arm_wrist_3_joint"]=ba_helper::ConvertDegreesToRadians(joint_angles[5]);
+
     moveit::core::MoveItErrorCode code;
 
-    if (joint_goal == "pick_swab")
-    {
-        code = Manipulator::MoveToPickSwabPosition();
-    }
+    manipulator_->setGoalJointTolerance(MANIPULATOR_JOINT_TOLERANCE);
+    manipulator_->setPoseReferenceFrame(BASE_FRAME);
+    manipulator_->setJointValueTarget(joint_position_);
+    manipulator_->setPlanningTime(30);
+    code = Manipulator::PlanAndExecute();
 
-    else if (joint_goal == "deploy")
-    {
-        code = Manipulator::MoveToDeployPosition();
-    }
+    // if (joint_goal == "pick_swab")
+    // {
+    //     code = Manipulator::MoveToPickSwabPosition();
+    // }
 
-    else
-    {
-        RCLCPP_ERROR(node_->get_logger(), "unknown joint goal given, returning failure");
-        code = moveit::core::MoveItErrorCode::FAILURE;
-    }
+    // else if (joint_goal == "deploy")
+    // {
+    //     code = Manipulator::MoveToDeployPosition();
+    // }
+
+    // else
+    // {
+    //     RCLCPP_ERROR(node_->get_logger(), "unknown joint goal given, returning failure");
+    //     code = moveit::core::MoveItErrorCode::FAILURE;
+    // }
     
     return code;
 }
@@ -251,7 +266,9 @@ double Manipulator::MoveLinearVec(double x, double y, double z){
     ee_base_frame.pose.position.y += y;
     ee_base_frame.pose.position.z += z;
     
-    RCLCPP_INFO(node_->get_logger(), "retreating vertically up in z axis by %f meters", z);
+    RCLCPP_INFO(node_->get_logger(), "retreating vertically in x axis by %f meters", x);
+    RCLCPP_INFO(node_->get_logger(), "retreating vertically in y axis by %f meters", y);
+    RCLCPP_INFO(node_->get_logger(), "retreating vertically in z axis by %f meters", z);
 
     double res = MoveLinear(ee_base_frame.pose, false);
     return res;

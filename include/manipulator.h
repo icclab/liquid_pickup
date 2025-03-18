@@ -89,7 +89,7 @@ private:
     std::shared_ptr<moveit::planning_interface::MoveGroupInterface> manipulator_;
 
     geometry_msgs::msg::PoseStamped drop_pose_;
-    std::map<std::string, double> initial_position_, pick_swab_, deploy_, driving_position_, scanning_position_;
+    std::map<std::string, double> initial_position_, pick_swab_, deploy_, driving_position_, scanning_position_, joint_position_;
     void InitializeSummitXlPoses(void);
     void InitializeInitialPose(void);
     void PickSwabPose(void);
