@@ -78,6 +78,8 @@ BT::NodeStatus GoToPose::onStart()
     std::string path_to_xml = package_share_directory + "/behavior_trees/";
     BT::Optional<std::string> behavior_tree_ = getInput<std::string>("behavior_tree");
 
+    BT::Optional<std::string> origin = getInput<std::string>("origin");
+    
     auto nav_msg = nav2_msgs::action::NavigateToPose::Goal(); 
     nav_msg.behavior_tree = path_to_xml + behavior_tree_.value();
 
@@ -85,45 +87,74 @@ BT::NodeStatus GoToPose::onStart()
 
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
 
-    if (deploy_coordinates_dynamic_.empty())
+    if (origin.value() == "origin")
     {
-        RCLCPP_WARN(node_->get_logger(), "[%s]: no deploy coordinates in the list", action_name_.c_str());
-        return BT::NodeStatus::FAILURE;
-    }
+        RCLCPP_INFO(node_->get_logger(), "going to map 0, 0");
 
-    else
-    {
-        json vec_array = deploy_coordinates_dynamic_.at(0);
-
-        std::string vec_string = vec_array.dump();
-
-        RCLCPP_INFO(node_->get_logger(), "[%s]: going to %s in the dynamic list", action_name_.c_str(), vec_string.c_str());
-        
         // 2D pose goal
         nav_msg.pose.header.stamp = node_->get_clock()->now();
         nav_msg.pose.header.frame_id = MAP_FRAME;
-        nav_msg.pose.pose.position.x = deploy_coordinates_dynamic_.at(0).at(0);
-        nav_msg.pose.pose.position.y = deploy_coordinates_dynamic_.at(0).at(1);
+        nav_msg.pose.pose.position.x = 0.0;
+        nav_msg.pose.pose.position.y = 0.0;
         nav_msg.pose.pose.position.z = 0.0;
         nav_msg.pose.pose.orientation.x = 0.0;
         nav_msg.pose.pose.orientation.y = 0.0;
         nav_msg.pose.pose.orientation.z = 0.0;
         nav_msg.pose.pose.orientation.w = 1.0;
 
-        obstacle_x_ = nav_msg.pose.pose.position.x;
-        obstacle_y_ = nav_msg.pose.pose.position.y;
-
         RCLCPP_INFO(node_->get_logger(), "[%s]: Sending Nav2 goal: header.frame_id: %s, x: %f, y: %f, z: %f, qx: %f, qy: %f, qz: %f, qw: %f, behavior_tree: %s", action_name_.c_str(), nav_msg.pose.header.frame_id.c_str(), nav_msg.pose.pose.position.x, nav_msg.pose.pose.position.y, nav_msg.pose.pose.position.z, nav_msg.pose.pose.orientation.x, nav_msg.pose.pose.orientation.y, nav_msg.pose.pose.orientation.z, nav_msg.pose.pose.orientation.w, nav_msg.behavior_tree.c_str());
     
-        auto goal_handle_future = action_client_->async_send_goal(nav_msg, send_goal_options_);
-
-        // Ask server to achieve some goal and wait until it's accepted
-        // auto goal_handle_future = action_client_->async_send_goal(nav_msg);
+        auto goal_handle_future_2 = action_client_->async_send_goal(nav_msg, send_goal_options_);
         
-        goal_handle_ = goal_handle_future.get();
+        goal_handle_ = goal_handle_future_2.get();
         if (!goal_handle_) {
         RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was rejected by server", action_name_.c_str());
         return BT::NodeStatus::FAILURE;
+        }
+    }
+    
+    else
+    {
+        if (deploy_coordinates_dynamic_.empty())
+        {
+            RCLCPP_WARN(node_->get_logger(), "[%s]: no deploy coordinates in the list", action_name_.c_str());
+            return BT::NodeStatus::FAILURE;
+        }
+
+        else
+        {
+            json vec_array = deploy_coordinates_dynamic_.at(0);
+
+            std::string vec_string = vec_array.dump();
+
+            RCLCPP_INFO(node_->get_logger(), "[%s]: going to %s in the dynamic list", action_name_.c_str(), vec_string.c_str());
+            
+            // 2D pose goal
+            nav_msg.pose.header.stamp = node_->get_clock()->now();
+            nav_msg.pose.header.frame_id = MAP_FRAME;
+            nav_msg.pose.pose.position.x = deploy_coordinates_dynamic_.at(0).at(0);
+            nav_msg.pose.pose.position.y = deploy_coordinates_dynamic_.at(0).at(1);
+            nav_msg.pose.pose.position.z = 0.0;
+            nav_msg.pose.pose.orientation.x = 0.0;
+            nav_msg.pose.pose.orientation.y = 0.0;
+            nav_msg.pose.pose.orientation.z = 0.0;
+            nav_msg.pose.pose.orientation.w = 1.0;
+
+            obstacle_x_ = nav_msg.pose.pose.position.x;
+            obstacle_y_ = nav_msg.pose.pose.position.y;
+
+            RCLCPP_INFO(node_->get_logger(), "[%s]: Sending Nav2 goal: header.frame_id: %s, x: %f, y: %f, z: %f, qx: %f, qy: %f, qz: %f, qw: %f, behavior_tree: %s", action_name_.c_str(), nav_msg.pose.header.frame_id.c_str(), nav_msg.pose.pose.position.x, nav_msg.pose.pose.position.y, nav_msg.pose.pose.position.z, nav_msg.pose.pose.orientation.x, nav_msg.pose.pose.orientation.y, nav_msg.pose.pose.orientation.z, nav_msg.pose.pose.orientation.w, nav_msg.behavior_tree.c_str());
+        
+            auto goal_handle_future = action_client_->async_send_goal(nav_msg, send_goal_options_);
+
+            // Ask server to achieve some goal and wait until it's accepted
+            // auto goal_handle_future = action_client_->async_send_goal(nav_msg);
+            
+            goal_handle_ = goal_handle_future.get();
+            if (!goal_handle_) {
+            RCLCPP_ERROR(node_->get_logger(), "[%s]: Goal was rejected by server", action_name_.c_str());
+            return BT::NodeStatus::FAILURE;
+            }
         }
     }
     
@@ -215,7 +246,7 @@ void GoToPose::onHalted(){}
  */
 BT::PortsList GoToPose::providedPorts()
 {
-    return {BT::InputPort<std::string>("behavior_tree"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<double>("nav_goal_tolerance")};
+    return {BT::InputPort<std::string>("behavior_tree"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<double>("nav_goal_tolerance"), BT::InputPort<std::string>("origin")};
 }
 
 #pragma endregion
