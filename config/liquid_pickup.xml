@@ -1,47 +1,66 @@
 <root BTCPP_format="4" >
-    <BehaviorTree ID="MainTree">
-        <Sequence name="root_sequence"> 
-            <Sequence name="SensorsDeploy">
-                <SensorsDeploy name="LiquidPickup" deploy_coordinates="{deploy_coordinates}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy_sensors_number="{deploy_sensors_number}"/>
-                <!-- <Repeat name="navigate_manipulate_repeater" num_cycles="{deploy_sensors_number}"> -->
-                    <Sequence name="NavigateManipulate">
-                    <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
-                        <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5"/>
-
+<BehaviorTree ID="MainTree">
+<Sequence name="root_sequence"> 
+<Sequence name="SensorsDeploy">
+<SensorsDeploy name="LiquidPickup" deploy_coordinates="{deploy_coordinates}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy_sensors_number="{deploy_sensors_number}"/>
+<!-- <Repeat name="navigate_manipulate_repeater" num_cycles="{deploy_sensors_number}"> -->
+<Sequence name="NavigateManipulate">
+<!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
+ <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5"/>
+ 
+				<RetryUntilSuccessful num_attempts="10">
+<ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+</RetryUntilSuccessful>
+ 
                         <RetryUntilSuccessful num_attempts="10">
-                            <JointGoal name="joint_swab_pickup" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
-                        </RetryUntilSuccessful>
-
+<JointGoal name="joint_swab_pickup" joint_goal="pick_swab_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+</RetryUntilSuccessful>
+ 
                         <RetryUntilSuccessful num_attempts="10">
-                            <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
-                        </RetryUntilSuccessful>
-
+<ChangeGripper name="open_gripper" position="0.2" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+</RetryUntilSuccessful>
+ 
                         <RetryUntilSuccessful num_attempts="10">
-                            <ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
-                        </RetryUntilSuccessful>
-
+<JointGoal name="joint_swab_pickup" joint_goal="pick_swab_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+</RetryUntilSuccessful>
+ 
+			<RetryUntilSuccessful num_attempts="10">
+<ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+</RetryUntilSuccessful>
+ 
+			<RetryUntilSuccessful num_attempts="10">
+<JointGoal name="joint_swab_return" joint_goal="return_swab_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+</RetryUntilSuccessful>
+ 
+                         <RetryUntilSuccessful num_attempts="10">
+<JointGoal name="joint_liquid_pickup" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+</RetryUntilSuccessful>
+ 
                         <RetryUntilSuccessful num_attempts="10">
-                            <JointGoal name="joint_liquid_pickup" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
-                        </RetryUntilSuccessful>
-
+<JointGoal name="joint_swab_return" joint_goal="return_swab_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+</RetryUntilSuccessful>
+ 
+			<RetryUntilSuccessful num_attempts="10">
+<JointGoal name="joint_swab_pickup" joint_goal="return_swab_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+</RetryUntilSuccessful>
+ 
                         <RetryUntilSuccessful num_attempts="10">
-                            <JointGoal name="joint_swab_return" joint_goal="pick_swab" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
-                        </RetryUntilSuccessful>
-
+<ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+</RetryUntilSuccessful>
+ 
+			<RetryUntilSuccessful num_attempts="10">
+<JointGoal name="joint_swab_return" joint_goal="pick_swab_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+</RetryUntilSuccessful>
+ 
                         <RetryUntilSuccessful num_attempts="10">
-                            <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
-                        </RetryUntilSuccessful>
-
-                        <RetryUntilSuccessful num_attempts="10">
-                            <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
-                        </RetryUntilSuccessful>
-                        
-                        <RetryUntilSuccessful num_attempts="10">
-                            <RetreatZ name="retreat_vertically_up" add_pos_z = "0.2"/>
-                        </RetryUntilSuccessful>          
-                    </Sequence>    
-                <!-- </Repeat> -->
-            </Sequence>        
-        </Sequence>
-    </BehaviorTree>
+<ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+</RetryUntilSuccessful>
+<!-- <RetryUntilSuccessful num_attempts="10">
+<RetreatZ name="retreat_vertically_up" add_pos_x = "0.0" add_pos_y = "0.0" add_pos_z = "0.2"/>
+</RetryUntilSuccessful> -->          
+</Sequence>    
+<!-- </Repeat> -->
+</Sequence>        
+</Sequence>
+</BehaviorTree>
 </root>
