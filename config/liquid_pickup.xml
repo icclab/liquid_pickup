@@ -15,7 +15,7 @@
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_swab_pickup" joint_goal="pick_swab_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                <JointGoal name="joint_swab_pickup" joint_goal="pick_swab_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
@@ -23,7 +23,7 @@
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_swab_pickup" joint_goal="pick_swab_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                <JointGoal name="joint_swab_pickup" joint_goal="pick_swab_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
@@ -31,19 +31,19 @@
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_swab_return" joint_goal="return_swab_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                <JointGoal name="joint_swab_return" joint_goal="return_swab_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_liquid_pickup" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                <JointGoal name="joint_liquid_pickup" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_swab_return" joint_goal="return_swab_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                <JointGoal name="joint_swab_return" joint_goal="return_swab_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_swab_pickup" joint_goal="return_swab_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                <JointGoal name="joint_swab_pickup" joint_goal="return_swab_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
@@ -51,7 +51,7 @@
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_swab_return" joint_goal="pick_swab_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}"/>
+                <JointGoal name="joint_swab_return" joint_goal="pick_swab_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">

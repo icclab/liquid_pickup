@@ -200,6 +200,7 @@ private:
     std::string action_name_;
     std::string error_message_;
     std::string joint_goal_;
+    bool deploy_{false};
     std::vector<std::vector<double>> deploy_coordinates_dynamic_;
 };
 

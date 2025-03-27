@@ -679,6 +679,7 @@ ManipulatorJointGoal::ManipulatorJointGoal(const std::string &name, const BT::No
 BT::NodeStatus ManipulatorJointGoal::onStart()
 {
     getInput("joint_goal", joint_goal_);
+    getInput("deploy", deploy_);
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: moving EE to %s position", action_name_.c_str(), joint_goal_.c_str());
@@ -700,7 +701,7 @@ BT::NodeStatus ManipulatorJointGoal::onRunning()
     {
         RCLCPP_INFO(node_->get_logger(), "[%s]: moved EE to %s position", action_name_.c_str(), joint_goal_.c_str());
 
-       if (joint_goal_ == "deploy")
+       if (deploy_)
        {
             RCLCPP_WARN(node_->get_logger(), "[%s]: sensor deployed, removing from dynamic list", action_name_.c_str());
 
@@ -735,7 +736,7 @@ void ManipulatorJointGoal::onHalted() {}
  */
 BT::PortsList ManipulatorJointGoal::providedPorts()
 {
-    return {BT::InputPort<std::string>("joint_goal"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic")};
+    return {BT::InputPort<std::string>("joint_goal"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("deploy")};
 }
 
 #pragma endregion
