@@ -78,7 +78,7 @@ BT::NodeStatus GoToPose::onStart()
     std::string path_to_xml = package_share_directory + "/behavior_trees/";
     BT::Optional<std::string> behavior_tree_ = getInput<std::string>("behavior_tree");
 
-    BT::Optional<std::string> origin = getInput<std::string>("origin");
+    getInput("origin", origin_);
     
     auto nav_msg = nav2_msgs::action::NavigateToPose::Goal(); 
     nav_msg.behavior_tree = path_to_xml + behavior_tree_.value();
@@ -87,7 +87,7 @@ BT::NodeStatus GoToPose::onStart()
 
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
 
-    if (origin.value() == "origin")
+    if (origin_ == "origin")
     {
         RCLCPP_INFO(node_->get_logger(), "going to map 0, 0");
 
@@ -180,11 +180,15 @@ BT::NodeStatus GoToPose::onRunning()
             if (cancel_goal_future->return_code == 0)
             {
                 distance_remaining_ = std::numeric_limits<double>::max();
-                geometry_msgs::msg::Point costmap_msg;
+                
+                if (origin_ != "origin")
+                {
+                    geometry_msgs::msg::Point costmap_msg;
 
-                costmap_msg.x = obstacle_x_;
-                costmap_msg.y = obstacle_y_;
-                costmap_publisher_->publish(costmap_msg);
+                    costmap_msg.x = obstacle_x_;
+                    costmap_msg.y = obstacle_y_;
+                    costmap_publisher_->publish(costmap_msg);
+                }
             }
      
             return BT::NodeStatus::SUCCESS;
@@ -222,11 +226,14 @@ BT::NodeStatus GoToPose::onRunning()
 
         RCLCPP_INFO(node_->get_logger(), "[%s]: result received", action_name_.c_str());
 
-        geometry_msgs::msg::Point costmap_msg;
+        if (origin_ != "origin")
+        {
+            geometry_msgs::msg::Point costmap_msg;
 
-        costmap_msg.x = obstacle_x_;
-        costmap_msg.y = obstacle_y_;
-        costmap_publisher_->publish(costmap_msg);
+            costmap_msg.x = obstacle_x_;
+            costmap_msg.y = obstacle_y_;
+            costmap_publisher_->publish(costmap_msg);
+        }
 
         return BT::NodeStatus::SUCCESS;
     }

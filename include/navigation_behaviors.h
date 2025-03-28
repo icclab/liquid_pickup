@@ -51,6 +51,7 @@ private:
   double obstacle_y_{0.0};
 
   std::string action_name_;
+  std::string origin_;
 
   double nav_goal_tolerance_{0.0};
   int count_{0};
