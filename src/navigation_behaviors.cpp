@@ -177,19 +177,28 @@ BT::NodeStatus GoToPose::onRunning()
             auto cancel_goal_future = cancel_goal.get();
             // RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
 
-            if (cancel_goal_future->return_code == 0)
+            if (origin_ != "origin")
             {
-                distance_remaining_ = std::numeric_limits<double>::max();
-                
-                if (origin_ != "origin")
-                {
-                    geometry_msgs::msg::Point costmap_msg;
+       	    	geometry_msgs::msg::Point costmap_msg;
 
-                    costmap_msg.x = obstacle_x_;
-                    costmap_msg.y = obstacle_y_;
-                    costmap_publisher_->publish(costmap_msg);
-                }
-            }
+            	costmap_msg.x = obstacle_x_;
+            	costmap_msg.y = obstacle_y_;
+            	costmap_publisher_->publish(costmap_msg);
+	        }
+            
+            // if (cancel_goal_future->return_code == 0)
+            // {
+            //     distance_remaining_ = std::numeric_limits<double>::max();
+                
+            //     if (origin_ != "origin")
+            //     {
+            //         geometry_msgs::msg::Point costmap_msg;
+
+            //         costmap_msg.x = obstacle_x_;
+            //         costmap_msg.y = obstacle_y_;
+            //         costmap_publisher_->publish(costmap_msg);
+            //     }
+            // }
      
             return BT::NodeStatus::SUCCESS;
         } 
