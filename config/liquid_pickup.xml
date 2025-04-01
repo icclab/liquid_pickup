@@ -34,8 +34,19 @@
                 <JointGoal name="joint_swab_return" joint_goal="return_swab_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
-            <RetryUntilSuccessful num_attempts="10">
+            <!-- <RetryUntilSuccessful num_attempts="10">
                 <JointGoal name="joint_liquid_pickup" joint_goal="deploy" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+            </RetryUntilSuccessful> -->
+
+            <RetryUntilSuccessful num_attempts="10">
+                <JointGoal name="sensor_deploy" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+            </RetryUntilSuccessful>
+            <RetryUntilSuccessful num_attempts="10">
+                <JointGoal name="sensor_deploy" joint_goal="deploy_3" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+            </RetryUntilSuccessful>
+
+            <RetryUntilSuccessful num_attempts="10">
+                <JointGoal name="sensor_deploy" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
