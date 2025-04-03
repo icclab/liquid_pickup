@@ -1,0 +1,14 @@
+<root BTCPP_format="4" >
+<BehaviorTree ID="MainTree">
+<Sequence name="root_sequence"> 
+    <Sequence name="people_detect">
+        <RetryUntilSuccessful num_attempts="10">
+            <ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.1" attach_or_detach = "detach"/>
+        </RetryUntilSuccessful>
+        <RetryUntilSuccessful num_attempts="10">
+            <JointGoal name="people_detect" joint_goal="people_detect" deploy_coordinates_dynamic="dummy" deploy = "false"/>
+        </RetryUntilSuccessful>
+    </Sequence>        
+</Sequence>
+</BehaviorTree>
+</root>
