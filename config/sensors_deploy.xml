@@ -80,6 +80,9 @@
                         <JointGoal name="return_sensor_1" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "true"/>
                     </RetryUntilSuccessful>
                 </Sequence>
+                <RetryUntilSuccessful num_attempts="10">
+                    <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="1.0" origin="origin"/>   
+                </RetryUntilSuccessful>   
             </Sequence>
         </Sequence>
     </BehaviorTree>
