@@ -7,7 +7,7 @@
         <Sequence name="NavigateManipulate">
             <RetryUntilSuccessful num_attempts="10">
                 <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
-                <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="1.0" origin="list"/>
+                <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="list"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
@@ -46,6 +46,10 @@
             </RetryUntilSuccessful>
 
             <RetryUntilSuccessful num_attempts="10">
+                <JointGoal name="sensor_deploy" joint_goal="pick_water" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+            </RetryUntilSuccessful>
+
+            <RetryUntilSuccessful num_attempts="10">
                 <JointGoal name="sensor_deploy" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
             </RetryUntilSuccessful>
         
@@ -70,7 +74,7 @@
             </RetryUntilSuccessful>
 
             <RetryUntilSuccessful num_attempts="10">
-                <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="1.0" origin="origin"/>   
+                <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="origin"/>   
             </RetryUntilSuccessful>   
         </Sequence>    
     </Sequence>        
