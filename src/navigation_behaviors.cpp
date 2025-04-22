@@ -87,6 +87,8 @@ BT::NodeStatus GoToPose::onStart()
 
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
 
+    getInput("s_dep", s_dep_); 
+
     if (origin_ == "origin")
     {
         RCLCPP_INFO(node_->get_logger(), "going to map 0, 0");
@@ -177,13 +179,15 @@ BT::NodeStatus GoToPose::onRunning()
             auto cancel_goal_future = cancel_goal.get();
             // RCLCPP_WARN(node_->get_logger(), "[%s]: cancel goal error code: %d", action_name_.c_str(), cancel_goal_future->return_code);
 
-            if (origin_ != "origin")
+            if (origin_ != "origin" && s_dep_)
             {
        	    	geometry_msgs::msg::Point costmap_msg;
 
             	costmap_msg.x = obstacle_x_;
             	costmap_msg.y = obstacle_y_;
             	costmap_publisher_->publish(costmap_msg);
+
+                RCLCPP_WARN(node_->get_logger(), "[%s]: adding obstacle on the costmap at x: %f, y: %f in the map frame", action_name_.c_str(), costmap_msg.x, costmap_msg.y);
 	        }
             
             // if (cancel_goal_future->return_code == 0)
@@ -235,13 +239,15 @@ BT::NodeStatus GoToPose::onRunning()
 
         RCLCPP_INFO(node_->get_logger(), "[%s]: result received", action_name_.c_str());
 
-        if (origin_ != "origin")
+        if (origin_ != "origin" && s_dep_)
         {
             geometry_msgs::msg::Point costmap_msg;
 
             costmap_msg.x = obstacle_x_;
             costmap_msg.y = obstacle_y_;
             costmap_publisher_->publish(costmap_msg);
+
+            RCLCPP_WARN(node_->get_logger(), "[%s]: adding obstacle on the costmap at x: %f, y: %f in the map frame", action_name_.c_str(), costmap_msg.x, costmap_msg.y);
         }
 
         return BT::NodeStatus::SUCCESS;
@@ -262,7 +268,7 @@ void GoToPose::onHalted(){}
  */
 BT::PortsList GoToPose::providedPorts()
 {
-    return {BT::InputPort<std::string>("behavior_tree"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<double>("nav_goal_tolerance"), BT::InputPort<std::string>("origin")};
+    return {BT::InputPort<std::string>("behavior_tree"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<double>("nav_goal_tolerance"), BT::InputPort<std::string>("origin"), BT::InputPort<bool>("s_dep")};
 }
 
 #pragma endregion

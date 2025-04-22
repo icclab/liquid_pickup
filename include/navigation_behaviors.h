@@ -63,6 +63,8 @@ private:
 
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr is_active_publisher_;
+
+  bool s_dep_{false};
 };
 
 #pragma endregion
