@@ -82,7 +82,11 @@
                 </Sequence>
                 <RetryUntilSuccessful num_attempts="10">
                     <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="origin"/>   
-                </RetryUntilSuccessful>   
+                </RetryUntilSuccessful> 
+                
+                <RetryUntilSuccessful num_attempts="10">
+                    <JointGoal name="people_detect" joint_goal="people_detect_2" deploy_coordinates_dynamic="dummy" deploy = "false"/>
+                </RetryUntilSuccessful>  
             </Sequence>
         </Sequence>
     </BehaviorTree>
