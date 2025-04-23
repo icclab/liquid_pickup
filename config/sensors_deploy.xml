@@ -5,8 +5,9 @@
                 <SensorsDeploy name="SensorsDeploy" deploy_coordinates="{deploy_coordinates}" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy_sensors_number="{deploy_sensors_number}"/>
                 <Sequence name="deploy_sensor_1">
                     <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
-                    <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="list" s_dep="true"/>
-            
+                    <RetryUntilSuccessful num_attempts="10">
+                        <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="list" s_dep="true"/>
+                    </RetryUntilSuccessful>
                     <RetryUntilSuccessful num_attempts="10">
                         <ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/> 
                     </RetryUntilSuccessful>
@@ -44,49 +45,55 @@
                         <JointGoal name="return_sensor_1" joint_goal="pick_sensor_1_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "true"/>
                     </RetryUntilSuccessful> 
                 </Sequence>
-                <Sequence name="deploy_sensor_2">
-                    <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="list" s_dep="true"/>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <JointGoal name="sensor_1_pickup" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <JointGoal name="sensor_1_pickup" joint_goal="pick_sensor_2_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <JointGoal name="sensor_1_pickup" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <JointGoal name="sensor_deploy" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <JointGoal name="sensor_deploy" joint_goal="deploy_3" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <JointGoal name="sensor_deploy" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
-                    </RetryUntilSuccessful>
-                    <RetryUntilSuccessful num_attempts="10">
-                        <JointGoal name="return_sensor_1" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "true"/>
-                    </RetryUntilSuccessful>
-                </Sequence>
-                <RetryUntilSuccessful num_attempts="10">
-                    <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="origin" s_dep="false"/>   
-                </RetryUntilSuccessful> 
-                
-                <RetryUntilSuccessful num_attempts="10">
-                    <JointGoal name="people_detect" joint_goal="people_detect_2" deploy_coordinates_dynamic="dummy" deploy = "false"/>
-                </RetryUntilSuccessful>  
+                <Fallback name="go_to_origin">
+                    <Sequence name="deploy_sensor_2">
+                        <RetryUntilSuccessful num_attempts="10">
+                            <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="list" s_dep="true"/>
+                        </RetryUntilSuccessful> 
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="sensor_2_pickup" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="sensor_2_pickup" joint_goal="pick_sensor_2_down" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <ChangeGripper name="close_gripper" position="0.7" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="sensor_2_pickup" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="sensor_deploy" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="sensor_deploy" joint_goal="deploy_3" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <ChangeGripper name="open_gripper" position="0.0" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="sensor_deploy" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <ChangeGripper name="close_gripper" position="0.69" max_effort = "0.0" gripper_goal_tolerance = "0.5" attach_or_detach = "detach"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="return_sensor_2" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "true"/>
+                        </RetryUntilSuccessful>
+                    </Sequence>
+                    <Sequence name="return_origin">
+                        <RetryUntilSuccessful num_attempts="10">
+                            <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="origin" s_dep="false"/>   
+                        </RetryUntilSuccessful> 
+                        
+                        <RetryUntilSuccessful num_attempts="10">
+                            <JointGoal name="people_detect" joint_goal="people_detect_2" deploy_coordinates_dynamic="dummy" deploy = "false"/>
+                        </RetryUntilSuccessful>  
+                    </Sequence>
+                </Fallback>    
             </Sequence>
         </Sequence>
     </BehaviorTree>
