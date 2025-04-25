@@ -107,6 +107,9 @@ private:
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
     moveit_visual_tools::MoveItVisualToolsPtr visual_tools_;
+
+    double v_scale_{0.0};
+    double a_scale_{0.0};
 };
 
 #pragma endregion

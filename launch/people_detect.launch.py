@@ -21,7 +21,7 @@ def generate_launch_description():
             executable='liquid_pickup_node',
             name='bt_node',
             namespace='summit',
-            parameters=[{"bt_xml": "people_detect.xml"}, {"use_sim_time": False}, {"coordinates": coordinates}],
+            parameters=[{"bt_xml": "people_detect.xml"}, {"use_sim_time": False}, {"coordinates": coordinates}, {"moveit_velocity_scale": 0.09}, {"moveit_acceleration_scale": 0.09}],
             output='screen',
             remappings=[('/tf', '/summit/tf'), ('/tf_static', '/summit/tf_static')],
             emulate_tty=True,

@@ -39,6 +39,15 @@ Manipulator::Manipulator(const rclcpp::Node::SharedPtr node)
     
     manipulator_->allowReplanning(true);
 
+    node_->get_parameter("moveit_velocity_scale", v_scale_);
+    node_->get_parameter("moveit_acceleration_scale", a_scale_);
+
+    manipulator_->setMaxVelocityScalingFactor(v_scale_);
+    manipulator_->setMaxAccelerationScalingFactor(a_scale_);
+
+    RCLCPP_WARN(node_->get_logger(), "manipulator: moveit: velocity scale = %f", v_scale_);
+    RCLCPP_WARN(node_->get_logger(), "manipulator: moveit: acceleration scale = %f", a_scale_);
+
     visual_tools_ = std::make_shared<moveit_visual_tools::MoveItVisualTools>(node_, BASE_FRAME, rviz_visual_tools::RVIZ_MARKER_TOPIC, manipulator_->getRobotModel());
 }
 
