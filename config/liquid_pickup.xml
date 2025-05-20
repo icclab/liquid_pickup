@@ -7,7 +7,7 @@
         <Sequence name="NavigateManipulate">
             <RetryUntilSuccessful num_attempts="10">
                 <!-- choose behavior_tree XML from here: https://github.com/ros-navigation/navigation2/tree/main/nav2_bt_navigator/behavior_trees, default: navigate_to_pose_w_replanning_and_recovery.xml -->
-                <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="1.0" origin="list" s_dep="false"/>
+                <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="list" s_dep="false"/>
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
