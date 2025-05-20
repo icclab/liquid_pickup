@@ -45,7 +45,7 @@
                         <JointGoal name="return_sensor_1" joint_goal="pick_sensor_1_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "true"/>
                     </RetryUntilSuccessful> 
                 </Sequence>
-                <Fallback name="go_to_origin">
+                <ForceSuccess>
                     <Sequence name="deploy_sensor_2">
                         <RetryUntilSuccessful num_attempts="10">
                             <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="list" s_dep="true"/>
@@ -84,16 +84,16 @@
                             <JointGoal name="return_sensor_2" joint_goal="pick_sensor_2_up" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "true"/>
                         </RetryUntilSuccessful>
                     </Sequence>
-                    <Sequence name="return_origin">
-                        <RetryUntilSuccessful num_attempts="10">
-                            <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="origin" s_dep="false"/>   
-                        </RetryUntilSuccessful> 
+                </ForceSuccess>
+                <Sequence name="return_origin">
+                    <RetryUntilSuccessful num_attempts="10">
+                        <GoToPose name="GoToPose" behavior_tree="navigate_to_pose_w_replanning_and_recovery.xml" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" nav_goal_tolerance="0.5" origin="origin" s_dep="false"/>   
+                    </RetryUntilSuccessful> 
                         
-                        <RetryUntilSuccessful num_attempts="10">
-                            <JointGoal name="people_detect" joint_goal="people_detect_2" deploy_coordinates_dynamic="dummy" deploy = "false"/>
-                        </RetryUntilSuccessful>  
-                    </Sequence>
-                </Fallback>    
+                    <RetryUntilSuccessful num_attempts="10">
+                        <JointGoal name="people_detect" joint_goal="people_detect_2" deploy_coordinates_dynamic="dummy" deploy = "false"/>
+                    </RetryUntilSuccessful>  
+                </Sequence>    
             </Sequence>
         </Sequence>
     </BehaviorTree>
