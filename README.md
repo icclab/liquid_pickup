@@ -11,6 +11,11 @@
 
 **How to run:**
 
+***Installation***
+```
+git clone -b 4.5.x https://github.com/BehaviorTree/BehaviorTree.CPP.git
+colcon build
+```
 1. **For simulation only**: After sourcing the `~/colcon_ws` *(usual command `. install/setup.bash`)* in one terminal run `ros2 launch icclab_summit_xl summit_xl_simulation.launch.py`.
 2. In another similar sourced terminal, run `ros2 launch icclab_summit_xl summit_xl_move_it.launch.py use_sim_time:=true | grep -v moveit_robot_model.robot_model`. `use_sim_time:=true` is default for **simulation**, but when working with the **real arm** put `use_sim_time:=false`.
 3. For running the Behavior Tree first clone, build and source this GitHub repo in your ROS 2 workspace, for example `~/rap/gaurav_ws$`. Then run `ros2 launch liquid_pickup liquid_pickup_launch.py`. For simulation and real robot, we should switch between `use_sim_time:=true` and `use_sim_time:=false` in the launch file, for example [here](https://github.com/Gaurav-Kapoor-07/liquid_pickup/blob/main/launch/liquid_pickup_launch.py#L14).
