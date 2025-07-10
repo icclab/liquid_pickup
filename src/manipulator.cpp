@@ -317,6 +317,24 @@ moveit::core::MoveItErrorCode Manipulator::PlanAndExecute()
         
         Manipulator::VisualizeArmTrajectory(my_plan);
 
+        if (!my_plan.trajectory_.joint_trajectory.points.empty())
+        {
+            // Get the last trajectory point
+            const auto& last_point = my_plan.trajectory_.joint_trajectory.points.back();
+
+            // Extract time_from_start (builtin_interfaces::msg::Duration)
+            const auto& duration_msg = last_point.time_from_start;
+
+            // Convert to double seconds
+            double duration_sec = duration_msg.sec + duration_msg.nanosec * 1e-9;
+
+            RCLCPP_WARN(node_->get_logger(), "Planned trajectory duration: %.3f seconds", duration_sec);
+        }
+        else
+        {
+            RCLCPP_ERROR(node_->get_logger(), "Trajectory points are empty, cannot get duration");
+        }
+
         moveit::core::MoveItErrorCode error_code = manipulator_->execute(my_plan);
         std::string error_message = moveit::core::error_code_to_string(error_code);
 
