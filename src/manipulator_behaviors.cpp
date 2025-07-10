@@ -681,10 +681,12 @@ BT::NodeStatus ManipulatorJointGoal::onStart()
     getInput("joint_goal", joint_goal_);
     getInput("deploy", deploy_);
     getInput("deploy_coordinates_dynamic", deploy_coordinates_dynamic_);
+    getInput("moveit_velocity_scale", moveit_velocity_scale_);
+    getInput("moveit_acceleration_scale", moveit_acceleration_scale_);
 
     RCLCPP_INFO(node_->get_logger(), "[%s]: moving EE to %s position", action_name_.c_str(), joint_goal_.c_str());
 
-    moveit::core::MoveItErrorCode error_code =  manipulator_.MoveGripperToJoint(joint_goal_);
+    moveit::core::MoveItErrorCode error_code =  manipulator_.MoveGripperToJoint(joint_goal_, moveit_velocity_scale_, moveit_acceleration_scale_);
     error_message_ = moveit::core::error_code_to_string(error_code);
     
     return BT::NodeStatus::RUNNING;
@@ -736,7 +738,7 @@ void ManipulatorJointGoal::onHalted() {}
  */
 BT::PortsList ManipulatorJointGoal::providedPorts()
 {
-    return {BT::InputPort<std::string>("joint_goal"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("deploy")};
+    return {BT::InputPort<std::string>("joint_goal"), BT::BidirectionalPort<std::vector<std::vector<double>>>("deploy_coordinates_dynamic"), BT::InputPort<bool>("deploy"), BT::InputPort<double>("moveit_velocity_scale"), BT::InputPort<double>("moveit_acceleration_scale")};
 }
 
 #pragma endregion

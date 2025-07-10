@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
   node_->declare_parameter("yaml_file", "arm_positions.yaml");
   node_->declare_parameter("bt_xml", "test_2.xml");
 
-  node_->declare_parameter<double>("moveit_velocity_scale", 1.0);
-  node_->declare_parameter<double>("moveit_acceleration_scale", 1.0);
+  // node_->declare_parameter<double>("moveit_velocity_scale", 1.0);
+  // node_->declare_parameter<double>("moveit_acceleration_scale", 1.0);
 
   node_->declare_parameter("coordinates", "[[2.0, 3.0], [4.0, 1.0]]");
   std::string coordinates_array = node_->get_parameter("coordinates").as_string();

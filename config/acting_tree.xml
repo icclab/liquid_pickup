@@ -18,18 +18,16 @@
             </RetryUntilSuccessful>
         
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="people_detect" joint_goal="people_detect" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                <JointGoal name="people_detect" joint_goal="deploy_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false" moveit_velocity_scale="1.0" moveit_acceleration_scale="1.0"/>
             </RetryUntilSuccessful>
+
+            <Sleep msec="2000"/>
             
             <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="joint_swab_pickup" joint_goal="pick_swab_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
+                <JointGoal name="joint_swab_pickup" joint_goal="people_detect_2" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false" moveit_velocity_scale="1.0" moveit_acceleration_scale="1.0"/>
             </RetryUntilSuccessful>
 
-            <Sleep msec="5000"/>
-
-            <RetryUntilSuccessful num_attempts="10">
-                <JointGoal name="arm_forward" joint_goal="arm_forward" deploy_coordinates_dynamic="{deploy_coordinates_dynamic}" deploy = "false"/>
-            </RetryUntilSuccessful>
+            <Sleep msec="2000"/>
 
         </Sequence>    
     </Sequence>        

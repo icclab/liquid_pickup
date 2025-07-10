@@ -39,14 +39,14 @@ Manipulator::Manipulator(const rclcpp::Node::SharedPtr node)
     
     manipulator_->allowReplanning(true);
 
-    node_->get_parameter("moveit_velocity_scale", v_scale_);
-    node_->get_parameter("moveit_acceleration_scale", a_scale_);
+    // node_->get_parameter("moveit_velocity_scale", v_scale_);
+    // node_->get_parameter("moveit_acceleration_scale", a_scale_);
 
-    manipulator_->setMaxVelocityScalingFactor(v_scale_);
-    manipulator_->setMaxAccelerationScalingFactor(a_scale_);
+    // manipulator_->setMaxVelocityScalingFactor(v_scale_);
+    // manipulator_->setMaxAccelerationScalingFactor(a_scale_);
 
-    RCLCPP_WARN(node_->get_logger(), "manipulator: moveit: velocity scale = %f", v_scale_);
-    RCLCPP_WARN(node_->get_logger(), "manipulator: moveit: acceleration scale = %f", a_scale_);
+    // RCLCPP_WARN(node_->get_logger(), "manipulator: moveit: velocity scale = %f", v_scale_);
+    // RCLCPP_WARN(node_->get_logger(), "manipulator: moveit: acceleration scale = %f", a_scale_);
 
     visual_tools_ = std::make_shared<moveit_visual_tools::MoveItVisualTools>(node_, BASE_FRAME, rviz_visual_tools::RVIZ_MARKER_TOPIC, manipulator_->getRobotModel());
 }
@@ -116,7 +116,7 @@ moveit_msgs::msg::RobotTrajectory Manipulator::PlanGripperToPose(double target_b
  * @param joint_goal The joint_goal to reach
  * @return moveit::core::MoveItErrorCode The errorcode
  */
-moveit::core::MoveItErrorCode Manipulator::MoveGripperToJoint(std::string joint_goal)
+moveit::core::MoveItErrorCode Manipulator::MoveGripperToJoint(std::string joint_goal, double moveit_velocity_scale, double moveit_acceleration_scale)
 {
     std::vector<double> joint_angles = arm_positions[joint_goal].as<std::vector<double>>();
 
@@ -129,6 +129,12 @@ moveit::core::MoveItErrorCode Manipulator::MoveGripperToJoint(std::string joint_
 
     moveit::core::MoveItErrorCode code;
 
+    manipulator_->setMaxVelocityScalingFactor(moveit_velocity_scale);
+    manipulator_->setMaxAccelerationScalingFactor(moveit_acceleration_scale);
+
+    RCLCPP_WARN(node_->get_logger(), "manipulator: UPDATE moveit: velocity scale = %f", moveit_velocity_scale);
+    RCLCPP_WARN(node_->get_logger(), "manipulator: UPDATE moveit: acceleration scale = %f", moveit_acceleration_scale);
+    
     manipulator_->setGoalJointTolerance(MANIPULATOR_JOINT_TOLERANCE);
     manipulator_->setPoseReferenceFrame(BASE_FRAME);
     manipulator_->setJointValueTarget(joint_position_);

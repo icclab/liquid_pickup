@@ -202,6 +202,8 @@ private:
     std::string joint_goal_;
     bool deploy_{false};
     std::vector<std::vector<double>> deploy_coordinates_dynamic_;
+    double moveit_velocity_scale_{0.09};
+    double moveit_acceleration_scale_{0.09};
 };
 
 #pragma endregion

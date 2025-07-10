@@ -64,7 +64,7 @@ public:
 
     moveit_msgs::msg::RobotTrajectory PlanGripperToPose(double target_base_footprint_x_, double target_base_footprint_y_, double target_base_footprint_z_, double target_base_footprint_roll_, double target_base_footprint_pitch_, double target_base_footprint_yaw_);
 
-    moveit::core::MoveItErrorCode MoveGripperToJoint(std::string joint_goal);
+    moveit::core::MoveItErrorCode MoveGripperToJoint(std::string joint_goal, double moveit_velocity_scale, double moveit_acceleration_scale);
 
     void VisualizeArmTrajectory(moveit::planning_interface::MoveGroupInterface::Plan my_plan);
 
